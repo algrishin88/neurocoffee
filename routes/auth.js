@@ -83,7 +83,7 @@ router.post(
       res.status(500).json({
         success: false,
         message: 'Ошибка при регистрации',
-        error: error.message,
+        ...(process.env.NODE_ENV === 'development' && { error: error.message }),
       });
     }
   },
@@ -152,7 +152,7 @@ router.post(
       res.status(500).json({
         success: false,
         message: 'Ошибка при входе',
-        error: error.message,
+        ...(process.env.NODE_ENV === 'development' && { error: error.message }),
       });
     }
   },
@@ -289,7 +289,7 @@ router.patch(
       res.status(500).json({
         success: false,
         message: 'Ошибка при обновлении профиля',
-        error: error.message,
+        ...(process.env.NODE_ENV === 'development' && { error: error.message }),
       });
     }
   },
@@ -398,7 +398,7 @@ router.get('/yandex/login', (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Ошибка при инициализации входа через Яндекс',
-      error: error.message,
+      ...(process.env.NODE_ENV === 'development' && { error: error.message }),
     });
   }
 });
@@ -499,7 +499,7 @@ router.post('/yandex/callback', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Ошибка при обработке ответа от Яндекса',
-      error: error.message,
+      ...(process.env.NODE_ENV === 'development' && { error: error.message }),
     });
   }
 });
@@ -600,7 +600,7 @@ router.get('/yandex/callback', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Ошибка при обработке ответа от Яндекса',
-      error: error.message,
+      ...(process.env.NODE_ENV === 'development' && { error: error.message }),
     });
   }
 });

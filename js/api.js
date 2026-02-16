@@ -25,12 +25,17 @@ async function apiRequest(endpoint, options = {}) {
     try {
         console.log(`API Request: ${options.method || 'GET'} ${API_BASE_URL}${endpoint}`);
         const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-        const data = await response.json();
-        
+        let data;
+        try {
+            data = await response.json();
+        } catch (_) {
+            data = {};
+        }
         console.log(`API Response:`, data);
-        
+
         if (!response.ok) {
-            const err = new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+            const msg = data.message || (response.status === 429 ? 'Слишком много запросов. Подождите минуту.' : response.status === 500 ? 'Ошибка сервера. Попробуйте позже.' : `Ошибка ${response.status}`);
+            const err = new Error(msg);
             err.response = data;
             err.status = response.status;
             if (response.status === 401 && (data.message || '').toLowerCase().includes('токен')) {
@@ -42,18 +47,11 @@ async function apiRequest(endpoint, options = {}) {
             }
             throw err;
         }
-        
         return data;
     } catch (error) {
-        console.error('API Error:', {
-            endpoint,
-            method: options.method || 'GET',
-            error: error.message,
-            response: error.response,
-            status: error.status
-        });
-        if (error.message === 'Failed to fetch') {
-            console.warn('💡 Сервер не отвечает. Запустите backend: npm start (порт 3000) или npm run start:3001 (другой порт — укажите NEURO_CAFE_API_URL в HTML).');
+        console.error('API Error:', { endpoint, method: options.method || 'GET', error: error.message, status: error.status });
+        if (error.message === 'Failed to fetch' || (error.name === 'TypeError' && !error.status)) {
+            error.message = 'Сервер недоступен. Проверьте интернет и попробуйте позже.';
         }
         throw error;
     }

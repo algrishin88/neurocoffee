@@ -237,9 +237,14 @@ async function adminFetch(url, opts = {}) {
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, ...(opts.headers || {}) },
   });
   const data = await res.json();
-  if (res.status === 401 || res.status === 403) {
-    alert(data.message || 'Нет доступа');
-    if (res.status === 401) window.location.href = 'login.html';
+  if (res.status === 401) {
+    alert(data.message || 'Войдите в аккаунт');
+    window.location.href = 'login.html';
+    return null;
+  }
+  if (res.status === 403) {
+    alert(data.message || 'Недостаточно прав. Доступ только для администраторов.');
+    window.location.href = 'profile.html';
     return null;
   }
   return data;

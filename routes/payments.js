@@ -85,9 +85,10 @@ router.post('/create-sbp', auth, async (req, res) => {
     });
   } catch (e) {
     console.error('Create SBP payment error:', e.response?.data || e.message);
+    const devMsg = process.env.NODE_ENV === 'development' && e.response?.data?.description;
     res.status(500).json({
       success: false,
-      message: e.response?.data?.description || 'Ошибка при создании платежа СБП',
+      message: devMsg || 'Ошибка при создании платежа СБП. Попробуйте позже.',
     });
   }
 });

@@ -182,16 +182,11 @@ router.post('/', auth, async (req, res) => {
     });
   } catch (error) {
     try { await client.query('ROLLBACK'); } catch (_) {}
-    console.error('Create order error:', error);
-    console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      userId: req.userId,
-    });
+    console.error('Create order error:', error.message, error.stack);
     res.status(500).json({
       success: false,
-      message: 'Ошибка при создании заказа',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      message: 'Ошибка при создании заказа. Попробуйте позже.',
+      ...(process.env.NODE_ENV === 'development' && { error: error.message }),
     });
   } finally {
     client.release();

@@ -27,13 +27,43 @@ app.use(cors(allowedOrigins ? { origin: allowedOrigins, credentials: true } : {}
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-// Global rate limiter
-app.use(rateLimit({ windowMs: 60 * 1000, max: 100, standardHeaders: true, legacyHeaders: false }));
+// Global API rate limiter — только для /api, чтобы статика (HTML/CSS/JS) не считалась
+const globalApiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Слишком много запросов. Подождите минуту и попробуйте снова.' },
+  handler: (req, res, _next, options) => {
+    res.status(options.statusCode).json(options.message);
+  },
+});
+app.use('/api', globalApiLimiter);
 
-// Strict rate limiters for sensitive endpoints
-const authLimiter = rateLimit({ windowMs: 60 * 1000, max: 5, message: { success: false, message: 'Слишком много попыток. Попробуйте через минуту.' } });
-const aiLimiter = rateLimit({ windowMs: 60 * 1000, max: 10, message: { success: false, message: 'Слишком много запросов к AI. Подождите минуту.' } });
-const contactLimiter = rateLimit({ windowMs: 60 * 1000, max: 3, message: { success: false, message: 'Слишком много сообщений. Подождите минуту.' } });
+// Общий обработчик для rate limit — всегда JSON с русским текстом
+const rateLimitHandler = (req, res, _next, options) => {
+  res.status(options.statusCode).json(options.message);
+};
+
+// Strict rate limiters для чувствительных эндпоинтов (с явным handler для JSON)
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  message: { success: false, message: 'Слишком много попыток входа. Подождите минуту.' },
+  handler: rateLimitHandler,
+});
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { success: false, message: 'Слишком много запросов к AI. Подождите минуту.' },
+  handler: rateLimitHandler,
+});
+const contactLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  message: { success: false, message: 'Слишком много сообщений. Подождите минуту.' },
+  handler: rateLimitHandler,
+});
 
 // Защита: не отдавать бэкенд при раздаче статики (Спринтхост и др.)
 const BLOCKED_PREFIXES = ['/lib', '/routes', '/middleware', '/models', '/scripts', '/node_modules'];
@@ -71,19 +101,20 @@ app.get('/api/health', async (req, res) => {
       database: 'connected',
     });
   } catch (error) {
+    console.error('Health check DB error:', error.message);
     res.status(500).json({
       status: 'ERROR',
-      message: 'Database connection failed',
-      error: error.message,
+      message: 'Ошибка подключения к базе данных',
+      ...(process.env.NODE_ENV === 'development' && { error: error.message }),
     });
   }
 });
 
-// API 404 handler - ДОЛЖЕН быть ДО статика middleware
+// API 404 handler — ДОЛЖЕН быть ДО статика middleware
 app.use('/api/', (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'API endpoint not found',
+    message: 'Эндпоинт API не найден',
     path: req.path,
   });
 });

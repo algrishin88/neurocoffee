@@ -160,9 +160,10 @@
                 document.getElementById('message').style.display = 'none';
                 const errorDiv = document.getElementById('error');
                 errorDiv.style.display = 'block';
+                const msg = (err.message === 'Failed to fetch' || !err.message) ? 'Сервер недоступен. Проверьте интернет и попробуйте снова.' : err.message;
                 errorDiv.innerHTML = `
-                    <strong>Ошибка сети:</strong><br>
-                    ${err.message}
+                    <strong>Ошибка:</strong><br>
+                    ${msg}
                     <br><a href="/">← Вернуться на главную</a>
                 `;
                 console.error('Error:', err);
