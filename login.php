@@ -34,22 +34,22 @@
             <div class="logo">НейроКофейня</div>
             <nav class="nav-logo">
                 <ul class="nav-menu">
-                    <li><a href="index.html">Главная</a></li>
-                    <li><a href="menubeta.html">Меню</a></li>
-                    <li><a href="services.html">О нас</a></li>
-                    <li><a href="contact.html">Контакты</a></li>
+                    <li><a href="index.php">Главная</a></li>
+                    <li><a href="menubeta.php">Меню</a></li>
+                    <li><a href="services.php">О нас</a></li>
+                    <li><a href="contact.php">Контакты</a></li>
                 </ul>
             </nav>
             <div class="auth-buttons">
-                <a href="login.html" class="btn btn-secondary">Войти</a>
-                <a href="register.html" class="btn btn-primary">Регистрация</a>
+                <a href="login.php" class="btn btn-secondary">Войти</a>
+                <a href="register.php" class="btn btn-primary">Регистрация</a>
             </div>
             <div class="sidebar">
             <ul>
-                <li><a href="index.html">Главная</a></li>
-                <li><a href="menubeta.html">Меню</a></li>
-                <li><a href="services.html">О нас</a></li>
-                <li><a href="contact.html">Контакты</a></li>
+                <li><a href="index.php">Главная</a></li>
+                <li><a href="menubeta.php">Меню</a></li>
+                <li><a href="services.php">О нас</a></li>
+                <li><a href="contact.php">Контакты</a></li>
             </ul>
             </div>
         </div>
@@ -128,10 +128,10 @@
             </div>
             
             <div class="register-link">
-                <p>Нет аккаунта? <a href="register.html">Зарегистрироваться</a></p>
+                <p>Нет аккаунта? <a href="register.php">Зарегистрироваться</a></p>
             </div>
             <div class="qr-login-link" style="margin-top: 1rem;">
-                <a href="login-qr.html" style="color: #4ecdc4; text-decoration: none;"><i class="fas fa-qrcode"></i> Войти по QR-коду</a>
+                <a href="login-qr.php" style="color: #4ecdc4; text-decoration: none;"><i class="fas fa-qrcode"></i> Войти по QR-коду</a>
             </div>
         </div>
     </div>
@@ -207,7 +207,7 @@
                             
                             // Redirect to main page after delay
                             setTimeout(() => {
-                                window.location.href = 'index.html';
+                                window.location.href = 'index.php';
                             }, 1500);
                         }
                     } else {
@@ -240,7 +240,7 @@
         function checkAuthStatus() {
             const currentUser = localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user');
             if (currentUser) {
-                window.location.href = 'index.html';
+                window.location.href = 'index.php';
             }
         }
         

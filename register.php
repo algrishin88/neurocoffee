@@ -29,22 +29,22 @@
             <div class="logo">НейроКофейня</div>
             <nav class="nav-logo">
                 <ul class="nav-menu">
-                    <li><a href="index.html">Главная</a></li>
-                    <li><a href="menubeta.html">Меню</a></li>
-                    <li><a href="services.html">О нас</a></li>
-                    <li><a href="contact.html">Контакты</a></li>
+                    <li><a href="index.php">Главная</a></li>
+                    <li><a href="menubeta.php">Меню</a></li>
+                    <li><a href="services.php">О нас</a></li>
+                    <li><a href="contact.php">Контакты</a></li>
                 </ul>
             </nav>
             <div class="auth-buttons">
-                <a href="login.html" class="btn btn-secondary">Войти</a>
-                <a href="register.html" class="btn btn-primary">Регистрация</a>
+                <a href="login.php" class="btn btn-secondary">Войти</a>
+                <a href="register.php" class="btn btn-primary">Регистрация</a>
             </div>
             <div class="sidebar">
             <ul>
-                <li><a href="index.html">Главная</a></li>
-                <li><a href="menubeta.html">Меню</a></li>
-                <li><a href="services.html">О нас</a></li>
-                <li><a href="contact.html">Контакты</a></li>
+                <li><a href="index.php">Главная</a></li>
+                <li><a href="menubeta.php">Меню</a></li>
+                <li><a href="services.php">О нас</a></li>
+                <li><a href="contact.php">Контакты</a></li>
             </ul>
             </div>
         </div>
@@ -178,7 +178,7 @@
             </div>
             
             <div class="login-link">
-                <p>Уже есть аккаунт? <a href="login.html">Войти</a></p>
+                <p>Уже есть аккаунт? <a href="login.php">Войти</a></p>
             </div>
         </div>
     </div>
@@ -294,7 +294,7 @@
                             
                             // Redirect to login page
                             setTimeout(() => {
-                                window.location.href = 'login.html';
+                                window.location.href = 'login.php';
                             }, 2000);
                         } else {
                             showMessage(response.message || 'Ошибка при регистрации', 'error');
@@ -433,7 +433,7 @@
         function checkAuthStatus() {
             const currentUser = localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user');
             if (currentUser) {
-                window.location.href = 'index.html';
+                window.location.href = 'index.php';
             }
         }
         

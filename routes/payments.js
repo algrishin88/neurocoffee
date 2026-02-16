@@ -49,7 +49,7 @@ router.post('/create-sbp', auth, async (req, res) => {
       payment_method_data: { type: 'sbp' },
       confirmation: {
         type: 'redirect',
-        return_url: `${BASE_URL.replace(/\/$/, '')}/order-success.html?orderId=${orderId}`,
+        return_url: `${BASE_URL.replace(/\/$/, '')}/order-success.php?orderId=${orderId}`,
       },
       capture: true,
       description: `Заказ №${orderId}`,

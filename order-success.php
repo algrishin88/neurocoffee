@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ оформлен — НейроКофейня</title>
+    <link rel="stylesheet" href="main-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="main-content" style="max-width: 560px; margin: 4rem auto; padding: 2rem; text-align: center;">
+        <h1 style="margin-bottom: 1rem;">Заказ оформлен</h1>
+        <p id="statusMsg">Ожидаем оплату по СБП…</p>
+        <p id="orderId" style="margin-top: 0.5rem; opacity: 0.8;"></p>
+        <a href="index.php" class="checkout-btn" style="display: inline-block; margin-top: 1.5rem; text-decoration: none;">На главную</a>
+    </div>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Как связаться с нами?</h3>
+                <ul>
+                    <li><a href="tel:+79001234567"><i class="fas fa-phone"></i> +7 *** *** 05-70</a></li>
+                    <li><a href="mailto:TishUp@yandex.ru"><i class="fas fa-envelope"></i> TishUp@yandex.ru</a></li>
+                    <li><a href="requisites.php"><i class="fas fa-file-invoice"></i> Реквизиты</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Мы в соцсетях</h3>
+                <ul class="social-icons">
+                    <li><a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank" rel="noopener"><i class="fab fa-telegram"></i></a></li>
+                    <li><a href="https://dzen.ru/id/65e0e96ea9bdc976e134ca84?share_to=link" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i></a></li>
+                    <li><a href="https://yandex.ru" target="_blank" rel="noopener"><i class="fab fa-yandex"></i></a></li>
+                </ul>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 НейроКофейня</p>
+                <p class="copyright-credits">Designed by <a href="https://ssir-team.ru/" target="_blank" rel="noopener">ssir-team</a> <span class="copyright-sep">|</span> <a href="https://t.me/Tisha_sir" target="_blank" rel="noopener">Trogovitsky</a></p>
+            </div>
+        </div>
+    </footer>
+    <script src="js/api.js"></script>
+    <script>
+        (function() {
+            const params = new URLSearchParams(location.search);
+            const orderId = params.get('orderId');
+            const statusEl = document.getElementById('statusMsg');
+            const idEl = document.getElementById('orderId');
+            if (orderId) idEl.textContent = 'Заказ №' + orderId;
+            if (window.API && orderId) {
+                window.API.orders.getOrder(orderId).then(function(r) {
+                    if (r.success && r.order) {
+                        if (r.order.paymentStatus === 'paid') statusEl.textContent = 'Оплачено. Спасибо за заказ!';
+                    }
+                }).catch(function() {});
+            }
+        })();
+    </script>
+    <script src="js/chat-widget.js"></script>
+</body>
+</html>

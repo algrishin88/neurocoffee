@@ -17,7 +17,7 @@ async function loginWithYandex() {
   }
 }
 
-// 2. Отправить код авторизации на бэкенд (эта функция вызывается в redirect.html)
+// 2. Отправить код авторизации на бэкенд (эта функция вызывается в redirect.php)
 async function handleYandexCallback(code) {
   try {
     const response = await fetch('/api/auth/yandex/callback?code=' + code);
@@ -29,7 +29,7 @@ async function handleYandexCallback(code) {
       localStorage.setItem('user', JSON.stringify(data.user));
       
       // Перенаправить на профиль
-      window.location.href = '/profile.html';
+      window.location.href = '/profile.php';
     } else {
       console.error('Error:', data.message);
     }
@@ -79,7 +79,7 @@ async function fetchWithAuth(url, options = {}) {
 function logout() {
   localStorage.removeItem('auth_token');
   localStorage.removeItem('user');
-  window.location.href = '/login.html';
+  window.location.href = '/login.php';
 }
 
 // 7. Проверить, авторизован ли пользователь
@@ -90,7 +90,7 @@ function isAuthenticated() {
 // 8. Перенаправить на страницу входа если не авторизован
 function requireAuth() {
   if (!isAuthenticated()) {
-    window.location.href = '/login.html';
+    window.location.href = '/login.php';
   }
 }
 

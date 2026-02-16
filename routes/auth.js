@@ -319,7 +319,7 @@ router.post('/qr/request', (req, res) => {
   const code = generateQrCode();
   qrCodeStore.set(code, { createdAt: Date.now() });
   const baseUrl = process.env.BASE_URL || (req.protocol + '://' + req.get('host'));
-  const qrUrl = baseUrl.replace(/\/$/, '') + '/login-qr.html?code=' + code;
+  const qrUrl = baseUrl.replace(/\/$/, '') + '/login-qr.php?code=' + code;
   res.json({
     success: true,
     code,

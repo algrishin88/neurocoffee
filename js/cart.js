@@ -88,7 +88,7 @@ class CartManager {
         const currentUser = this.getCurrentUser();
         if (!currentUser) {
             alert('Пожалуйста, войдите в аккаунт, чтобы добавить товар в корзину');
-            window.location.href = 'login.html';
+            window.location.href = 'login.php';
             return;
         }
 
@@ -508,7 +508,7 @@ class CartManager {
         const currentUser = this.getCurrentUser();
         if (!currentUser) {
             alert('Пожалуйста, войдите в аккаунт');
-            window.location.href = 'login.html';
+            window.location.href = 'login.php';
             return;
         }
 

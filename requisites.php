@@ -19,13 +19,13 @@
     <header>
         <button id="sidebarToggle">☰</button>
         <div class="nav-container">
-            <a href="index.html" class="logo">НейроКофейня</a>
+            <a href="index.php" class="logo">НейроКофейня</a>
             <nav class="nav-logo">
                 <ul class="nav-menu">
-                    <li><a href="index.html">Главная</a></li>
-                    <li><a href="menubeta.html">Меню</a></li>
-                    <li><a href="services.html">О нас</a></li>
-                    <li><a href="contact.html">Контакты</a></li>
+                    <li><a href="index.php">Главная</a></li>
+                    <li><a href="menubeta.php">Меню</a></li>
+                    <li><a href="services.php">О нас</a></li>
+                    <li><a href="contact.php">Контакты</a></li>
                 </ul>
             </nav>
             <div class="header-right">
@@ -36,18 +36,18 @@
                     </button>
                 </div>
                 <div class="auth-buttons">
-                    <a href="login.html" class="btn btn-secondary">Войти</a>
-                    <a href="register.html" class="btn btn-primary">Регистрация</a>
+                    <a href="login.php" class="btn btn-secondary">Войти</a>
+                    <a href="register.php" class="btn btn-primary">Регистрация</a>
                 </div>
             </div>
             <div class="sidebar">
                 <div class="sidebar-brand">НейроКофейня</div>
                 <ul>
-                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
-                    <li><a href="menubeta.html"><i class="fas fa-coffee"></i> Меню</a></li>
-                    <li><a href="services.html"><i class="fas fa-info-circle"></i> О нас</a></li>
-                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
-                    <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
+                    <li><a href="index.php"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="menubeta.php"><i class="fas fa-coffee"></i> Меню</a></li>
+                    <li><a href="services.php"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="contact.php"><i class="fas fa-envelope"></i> Контакты</a></li>
+                    <li><a href="profile.php"><i class="fas fa-user"></i> Профиль</a></li>
                 </ul>
                 <div class="sidebar-social">
                     <a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank" rel="noopener"><i class="fab fa-telegram"></i></a>
@@ -94,7 +94,7 @@
                     <p><strong>Корр. счёт:</strong> 30101810400000000225</p>
                 </div>
                 <p style="margin-top: 1.5rem; opacity: 0.85; font-size: 0.95rem;">Для оплаты по счёту или переводам уточняйте актуальные реквизиты по телефону или почте.</p>
-                <p style="margin-top: 0.5rem;"><a href="contact.html" style="color: var(--accent, #c9a86c);">Контакты →</a></p>
+                <p style="margin-top: 0.5rem;"><a href="contact.php" style="color: var(--accent, #c9a86c);">Контакты →</a></p>
             </div>
         </div>
     </div>
@@ -106,7 +106,7 @@
                 <ul>
                     <li><a href="tel:+79001234567"><i class="fas fa-phone"></i> +7 *** *** 05-70</a></li>
                     <li><a href="mailto:TishUp@yandex.ru"><i class="fas fa-envelope"></i> TishUp@yandex.ru</a></li>
-                    <li><a href="requisites.html"><i class="fas fa-file-invoice"></i> Реквизиты</a></li>
+                    <li><a href="requisites.php"><i class="fas fa-file-invoice"></i> Реквизиты</a></li>
                 </ul>
             </div>
             <div class="footer-section">

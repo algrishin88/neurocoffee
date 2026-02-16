@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход по QR-коду — НейроКофейня</title>
+    <link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+    <link rel="stylesheet" href="login.css">
+    <script src="js/api.js"></script>
+    <style>
+        .qr-page { max-width: 420px; margin: 2rem auto; padding: 1.5rem; text-align: center; }
+        .qr-page h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .qr-page p { color: rgba(255,255,255,0.85); margin-bottom: 1.5rem; }
+        .qr-image { margin: 1rem 0; }
+        .qr-image img { border-radius: 12px; }
+        .qr-code-text { font-family: monospace; letter-spacing: 0.2em; margin-top: 0.5rem; font-size: 1.1rem; }
+        .qr-expires { font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem; }
+        .qr-confirm-block { margin-top: 2rem; }
+        .qr-confirm-btn { padding: 0.75rem 1.5rem; background: linear-gradient(45deg, #4ecdc4, #44a08d); color: #fff; border: none; border-radius: 25px; font-size: 1rem; cursor: pointer; }
+        .qr-confirm-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .qr-link-back { display: inline-block; margin-top: 1.5rem; color: #4ecdc4; text-decoration: none; }
+        .qr-link-back:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="qr-page">
+        <div id="desktopBlock" style="display: none;">
+            <h1>Вход по QR-коду</h1>
+            <p>Отсканируйте код камерой телефона или откройте ссылку на телефоне, войдите в аккаунт и подтвердите вход.</p>
+            <div class="qr-image" id="qrImageContainer"></div>
+            <div class="qr-code-text" id="qrCodeText"></div>
+            <div class="qr-expires" id="qrExpires"></div>
+            <p id="qrStatusText" style="margin-top: 1rem;"></p>
+        </div>
+        <div id="phoneBlock" style="display: none;">
+            <h1>Подтвердить вход</h1>
+            <p id="phoneMessage">Вы отсканировали QR-код. Нажмите кнопку, чтобы войти на компьютере с этого аккаунта.</p>
+            <div class="qr-confirm-block">
+                <button class="qr-confirm-btn" id="confirmBtn">Подтвердить вход на компьютере</button>
+            </div>
+        </div>
+        <div id="loginRequiredBlock" style="display: none;">
+            <h1>Требуется вход</h1>
+            <p>Войдите в аккаунт на этом устройстве, затем снова откройте ссылку из QR-кода.</p>
+            <a href="login.php" class="qr-link-back">Перейти к входу</a>
+        </div>
+        <div id="loadingBlock">
+            <p>Загрузка...</p>
+        </div>
+        <a href="login.php" class="qr-link-back" id="linkBack" style="display: none;">← Вернуться к обычному входу</a>
+    </div>
+    <script>
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            const API_BASE = '/api';
+
+            async function api(endpoint, options) {
+                const token = localStorage.getItem('neuro-cafe-token') || sessionStorage.getItem('neuro-cafe-token');
+                const res = await fetch(API_BASE + endpoint, {
+                    ...options,
+                    headers: { 'Content-Type': 'application/json', ...(token && { 'Authorization': 'Bearer ' + token }), ...(options && options.headers) }
+                });
+                return res.json();
+            }
+
+            if (code) {
+                document.getElementById('loadingBlock').style.display = 'none';
+                const token = localStorage.getItem('neuro-cafe-token') || sessionStorage.getItem('neuro-cafe-token');
+                if (!token) {
+                    document.getElementById('loginRequiredBlock').style.display = 'block';
+                    document.getElementById('linkBack').style.display = 'inline-block';
+                } else {
+                    document.getElementById('phoneBlock').style.display = 'block';
+                    document.getElementById('linkBack').style.display = 'inline-block';
+                    document.getElementById('confirmBtn').onclick = async function() {
+                        this.disabled = true;
+                        try {
+                            const data = await api('/auth/qr/confirm', { method: 'POST', body: JSON.stringify({ code: code.trim().toUpperCase() }) });
+                            if (data.success) {
+                                document.getElementById('phoneMessage').textContent = 'Готово! Можете закрыть эту страницу — на компьютере вы уже войдёте.';
+                                document.getElementById('confirmBtn').style.display = 'none';
+                            } else {
+                                alert(data.message || 'Ошибка');
+                                this.disabled = false;
+                            }
+                        } catch (e) {
+                            alert('Ошибка сети');
+                            this.disabled = false;
+                        }
+                    };
+                }
+                return;
+            }
+
+            document.getElementById('loadingBlock').style.display = 'block';
+            api('/auth/qr/request', { method: 'POST' }).then(function(data) {
+                document.getElementById('loadingBlock').style.display = 'none';
+                if (!data.success || !data.code) {
+                    document.getElementById('loadingBlock').innerHTML = '<p>Не удалось создать код. <a href="login.php">Войти</a></p>';
+                    return;
+                }
+                const c = data.code;
+                const qrUrl = data.qrUrl || (window.location.origin + window.location.pathname + '?code=' + c);
+                document.getElementById('desktopBlock').style.display = 'block';
+                document.getElementById('linkBack').style.display = 'inline-block';
+                document.getElementById('qrCodeText').textContent = c;
+                document.getElementById('qrExpires').textContent = 'Код действителен ' + (data.expiresIn || 300) + ' сек.';
+                document.getElementById('qrImageContainer').innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(qrUrl) + '" alt="QR" width="220" height="220">';
+
+                var poll = setInterval(function() {
+                    api('/auth/qr/status?code=' + encodeURIComponent(c)).then(function(st) {
+                        if (st.status === 'expired') {
+                            clearInterval(poll);
+                            document.getElementById('qrStatusText').textContent = 'Код истёк. Обновите страницу.';
+                            return;
+                        }
+                        if (st.status === 'confirmed' && st.token && st.user) {
+                            clearInterval(poll);
+                            localStorage.setItem('neuro-cafe-token', st.token);
+                            localStorage.setItem('neuro-cafe-current-user', JSON.stringify(st.user));
+                            sessionStorage.setItem('neuro-cafe-token', st.token);
+                            sessionStorage.setItem('neuro-cafe-current-user', JSON.stringify(st.user));
+                            document.getElementById('qrStatusText').textContent = 'Вход выполнен, перенаправление...';
+                            setTimeout(function() { window.location.href = 'index.php'; }, 800);
+                        }
+                    });
+                }, 2000);
+            }).catch(function() {
+                document.getElementById('loadingBlock').innerHTML = '<p>Ошибка сервера. <a href="login.php">Войти</a></p>';
+            });
+        })();
+    </script>
+</body>
+</html>

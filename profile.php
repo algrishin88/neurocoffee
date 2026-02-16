@@ -19,24 +19,24 @@
             <div class="logo">НейроКофейня</div>
             <nav class="nav-logo">
                 <ul class="nav-menu">
-                    <li><a href="index.html">Главная</a></li>
-                    <li><a href="menubeta.html">Меню</a></li>
-                    <li><a href="services.html">О нас</a></li>
-                    <li><a href="contact.html">Контакты</a></li>
+                    <li><a href="index.php">Главная</a></li>
+                    <li><a href="menubeta.php">Меню</a></li>
+                    <li><a href="services.php">О нас</a></li>
+                    <li><a href="contact.php">Контакты</a></li>
                 </ul>
             </nav>
             <div class="auth-buttons">
-                <a href="login.html" class="btn btn-secondary">Войти</a>
-                <a href="register.html" class="btn btn-primary">Регистрация</a>
+                <a href="login.php" class="btn btn-secondary">Войти</a>
+                <a href="register.php" class="btn btn-primary">Регистрация</a>
             </div>
             <div class="sidebar">
                 <div class="sidebar-brand">НейроКофейня</div>
                 <ul>
-                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
-                    <li><a href="menubeta.html"><i class="fas fa-coffee"></i> Меню</a></li>
-                    <li><a href="services.html"><i class="fas fa-info-circle"></i> О нас</a></li>
-                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
-                    <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
+                    <li><a href="index.php"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="menubeta.php"><i class="fas fa-coffee"></i> Меню</a></li>
+                    <li><a href="services.php"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="contact.php"><i class="fas fa-envelope"></i> Контакты</a></li>
+                    <li><a href="profile.php"><i class="fas fa-user"></i> Профиль</a></li>
                 </ul>
                 <div class="sidebar-social">
                     <a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank" rel="noopener"><i class="fab fa-telegram"></i></a>
@@ -75,7 +75,7 @@
                     </div>
                     
                     <div class="profile-actions">
-                        <a href="menubeta.html" class="profile-btn"><i class="fas fa-coffee"></i> Меню</a>
+                        <a href="menubeta.php" class="profile-btn"><i class="fas fa-coffee"></i> Меню</a>
                         <a href="#" class="profile-btn" onclick="event.preventDefault(); logout()"><i class="fas fa-sign-out-alt"></i> Выход</a>
                     </div>
                 </div>
@@ -237,7 +237,7 @@
         // Init
         document.addEventListener('DOMContentLoaded', async function() {
             const token = localStorage.getItem('neuro-cafe-token') || sessionStorage.getItem('neuro-cafe-token');
-            if (!token || !window.API) { window.location.href = 'login.html'; return; }
+            if (!token || !window.API) { window.location.href = 'login.php'; return; }
             await loadProfile();
         });
 
@@ -265,7 +265,7 @@
                 document.getElementById('bonus-balance').textContent = user.bonusPoints || 0;
             } catch (e) {
                 console.error('Load profile error:', e);
-                if (e.status === 401) { window.location.href = 'login.html'; }
+                if (e.status === 401) { window.location.href = 'login.php'; }
             }
         }
 
@@ -276,7 +276,7 @@
                 const orders = res.orders || [];
                 document.getElementById('orders-count').textContent = orders.length;
                 if (orders.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>У вас пока нет заказов</p><a href="menubeta.html" class="profile-btn primary">Перейти в меню</a></div>';
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>У вас пока нет заказов</p><a href="menubeta.php" class="profile-btn primary">Перейти в меню</a></div>';
                     return;
                 }
                 container.innerHTML = orders.map(o => `
@@ -329,7 +329,7 @@
                 const res = await window.API.bookings.getMyBookings();
                 const bookings = res.bookings || [];
                 if (bookings.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar"></i><p>У вас нет бронирований</p><a href="index.html" class="profile-btn primary">Забронировать</a></div>';
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar"></i><p>У вас нет бронирований</p><a href="index.php" class="profile-btn primary">Забронировать</a></div>';
                     return;
                 }
                 container.innerHTML = bookings.map(b => `
@@ -399,7 +399,7 @@
 
         function logout() {
             if (window.API) window.API.auth.logout();
-            window.location.href = 'index.html';
+            window.location.href = 'index.php';
         }
 
         // Phone formatting

@@ -29,13 +29,13 @@
     <header>
         <button id="sidebarToggle">☰</button>
         <div class="nav-container">
-            <a href="index.html" class="logo">НейроКофейня</a>
+            <a href="index.php" class="logo">НейроКофейня</a>
             <nav class="nav-logo">
                 <ul class="nav-menu">
-                    <li><a href="index.html" class="active">Главная</a></li>
-                    <li><a href="menubeta.html">Меню</a></li>
-                    <li><a href="services.html">О нас</a></li>
-						<li><a href="contact.html">Контакты</a></li>
+                    <li><a href="index.php" class="active">Главная</a></li>
+                    <li><a href="menubeta.php">Меню</a></li>
+                    <li><a href="services.php">О нас</a></li>
+						<li><a href="contact.php">Контакты</a></li>
                 </ul>
             </nav>
             <div class="header-right">
@@ -46,18 +46,18 @@
 							</button>
 						</div>
                 <div class="auth-buttons">
-                    <a href="login.html" class="btn btn-secondary">Войти</a>
-                    <a href="register.html" class="btn btn-primary">Регистрация</a>
+                    <a href="login.php" class="btn btn-secondary">Войти</a>
+                    <a href="register.php" class="btn btn-primary">Регистрация</a>
 													</div>
 												</div>
             <div class="sidebar">
                 <div class="sidebar-brand">НейроКофейня</div>
                 <ul>
-                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
-                    <li><a href="menubeta.html"><i class="fas fa-coffee"></i> Меню</a></li>
-                    <li><a href="services.html"><i class="fas fa-info-circle"></i> О нас</a></li>
-                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
-                    <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
+                    <li><a href="index.php"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="menubeta.php"><i class="fas fa-coffee"></i> Меню</a></li>
+                    <li><a href="services.php"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="contact.php"><i class="fas fa-envelope"></i> Контакты</a></li>
+                    <li><a href="profile.php"><i class="fas fa-user"></i> Профиль</a></li>
                 </ul>
                 <div class="sidebar-social">
                     <a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank" rel="noopener"><i class="fab fa-telegram"></i></a>
@@ -152,7 +152,7 @@
             <div class="cards-grid cards-grid-stagger">
                 <div class="card liquid-glass card-reveal" style="animation-delay: 0.1s;">
                     <div class="card-image">
-                        <a href="menubeta.html#1"><img src="images/img_1.jpg" alt="Нейро-капучино"></a>
+                        <a href="menubeta.php#1"><img src="images/img_1.jpg" alt="Нейро-капучино"></a>
 									</div>
                     <div class="card-content">
                         <h3 class="card-title">Нейро-капучино</h3>
@@ -162,7 +162,7 @@
 			</div>
             <div class="card liquid-glass card-reveal" style="animation-delay: 0.2s;">
                     <div class="card-image">
-                        <a href="menubeta.html#2"><img src="images/img_2.jpg" alt="Квантовый раф"></a>
+                        <a href="menubeta.php#2"><img src="images/img_2.jpg" alt="Квантовый раф"></a>
 						</div>
                     <div class="card-content">
                         <h3 class="card-title">Квантовый раф</h3>
@@ -172,7 +172,7 @@
 			</div>
                 <div class="card liquid-glass card-reveal" style="animation-delay: 0.3s;">
                     <div class="card-image">
-                        <a href="menubeta.html#3"><img src="images/img_3.jpg" alt="Цифровой Латте"></a>
+                        <a href="menubeta.php#3"><img src="images/img_3.jpg" alt="Цифровой Латте"></a>
 		</div>
                     <div class="card-content">
                         <h3 class="card-title">Цифровой Латте</h3>
@@ -271,7 +271,7 @@
                 <ul>
                     <li><a href="tel:+79001234567"><i class="fas fa-phone"></i> +7 *** *** 05-70</a></li>
                     <li><a href="mailto:TishUp@yandex.ru"><i class="fas fa-envelope"></i> TishUp@yandex.ru</a></li>
-                    <li><a href="requisites.html"><i class="fas fa-file-invoice"></i> Реквизиты</a></li>
+                    <li><a href="requisites.php"><i class="fas fa-file-invoice"></i> Реквизиты</a></li>
                 </ul>
             </div>
             <div class="footer-section">

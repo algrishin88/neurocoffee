@@ -1,0 +1,17 @@
+# НейроКофейня — работа на PHP
+DirectoryIndex index.php index.html
+
+# Опционально: редирект старых .html на .php (раскомментируйте при необходимости)
+# RewriteEngine On
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^(.+)\.html$ $1.php [L,R=301]
+
+# Запрет доступа к служебным каталогам и файлам
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+<IfModule mod_rewrite.c>
+    RewriteRule ^(lib|routes|middleware|models|scripts|node_modules)/ - [F,L]
+    RewriteRule ^(server\.js|\.env|package\.json)$ - [F,L]
+</IfModule>

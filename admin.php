@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ-панель — НейроКофейня</title>
+<link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="adminSidebar">
+    <div class="sidebar-header">
+      <h2><i class="fas fa-coffee"></i> НейроКофейня</h2>
+      <span class="sidebar-badge">Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-section="dashboard"><i class="fas fa-chart-pie"></i> Дашборд</a>
+      <a href="#" class="nav-item" data-section="orders"><i class="fas fa-shopping-bag"></i> Заказы</a>
+      <a href="#" class="nav-item" data-section="menu"><i class="fas fa-utensils"></i> Меню</a>
+      <a href="#" class="nav-item" data-section="users"><i class="fas fa-users"></i> Пользователи</a>
+      <a href="#" class="nav-item" data-section="bookings"><i class="fas fa-calendar-alt"></i> Бронирования</a>
+      <a href="#" class="nav-item" data-section="contacts"><i class="fas fa-envelope"></i> Сообщения</a>
+      <a href="#" class="nav-item" data-section="newsletter"><i class="fas fa-newspaper"></i> Рассылка</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.php"><i class="fas fa-arrow-left"></i> На сайт</a>
+      <a href="#" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="top-bar">
+      <button class="menu-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+      <h1 id="pageTitle">Дашборд</h1>
+      <div class="top-bar-right">
+        <span id="adminName"></span>
+      </div>
+    </header>
+
+    <!-- Dashboard Section -->
+    <section class="section active" id="section-dashboard">
+      <div class="stats-grid" id="statsGrid"></div>
+    </section>
+
+    <!-- Orders Section -->
+    <section class="section" id="section-orders">
+      <div class="section-toolbar">
+        <div class="filter-group">
+          <label>Статус:</label>
+          <select id="orderStatusFilter" onchange="loadOrders()">
+            <option value="">Все</option>
+            <option value="pending">Ожидает</option>
+            <option value="confirmed">Подтверждён</option>
+            <option value="preparing">Готовится</option>
+            <option value="ready">Готов</option>
+            <option value="delivered">Доставлен</option>
+            <option value="cancelled">Отменён</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="ordersTable">
+          <thead>
+            <tr>
+              <th>ID</th><th>Клиент</th><th>Сумма</th><th>Статус</th><th>Оплата</th><th>Дата</th><th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="ordersPagination"></div>
+    </section>
+
+    <!-- Menu Section -->
+    <section class="section" id="section-menu">
+      <div class="section-toolbar">
+        <button class="btn btn-primary" onclick="showMenuForm()"><i class="fas fa-plus"></i> Добавить товар</button>
+      </div>
+      <div class="cards-grid" id="menuGrid"></div>
+      <!-- Menu Form Modal -->
+      <div class="modal-overlay" id="menuModal" style="display:none">
+        <div class="modal-content">
+          <h3 id="menuFormTitle">Новый товар</h3>
+          <form id="menuForm" onsubmit="saveMenuItem(event)">
+            <input type="hidden" id="menuItemId">
+            <div class="form-row">
+              <label>Название</label>
+              <input type="text" id="menuName" required>
+            </div>
+            <div class="form-row">
+              <label>Описание</label>
+              <input type="text" id="menuDesc" required>
+            </div>
+            <div class="form-row">
+              <label>Изображение (путь)</label>
+              <input type="text" id="menuImage" value="images/img_1.jpg">
+            </div>
+            <div class="form-row">
+              <label>Категория</label>
+              <select id="menuCategory">
+                <option value="coffee">Кофе</option>
+                <option value="tea">Чай</option>
+                <option value="special">Специальное</option>
+                <option value="dessert">Десерты</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Размеры и цены</label>
+              <div id="sizesContainer"></div>
+              <button type="button" class="btn btn-sm" onclick="addSizeRow()"><i class="fas fa-plus"></i> Добавить размер</button>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Сохранить</button>
+              <button type="button" class="btn btn-secondary" onclick="closeMenuModal()">Отмена</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Users Section -->
+    <section class="section" id="section-users">
+      <div class="section-toolbar">
+        <input type="text" class="search-input" placeholder="Поиск по имени / email..." id="userSearch" oninput="debounceLoadUsers()">
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Имя</th><th>Email</th><th>Телефон</th><th>Роль</th><th>Бонусы</th><th>Дата рег.</th><th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="usersPagination"></div>
+    </section>
+
+    <!-- Bookings Section -->
+    <section class="section" id="section-bookings">
+      <div class="section-toolbar">
+        <div class="filter-group">
+          <label>Статус:</label>
+          <select id="bookingStatusFilter" onchange="loadBookings()">
+            <option value="">Все</option>
+            <option value="pending">Ожидает</option>
+            <option value="confirmed">Подтверждено</option>
+            <option value="cancelled">Отменено</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Клиент</th><th>Гости</th><th>Дата</th><th>Время</th><th>Зона</th><th>Статус</th><th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="bookingsPagination"></div>
+    </section>
+
+    <!-- Contacts Section -->
+    <section class="section" id="section-contacts">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Имя</th><th>Email</th><th>Сообщение</th><th>Статус</th><th>Дата</th><th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="contactsBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="contactsPagination"></div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="section" id="section-newsletter">
+      <div class="section-toolbar">
+        <button class="btn btn-secondary" onclick="exportSubscribers()"><i class="fas fa-download"></i> Экспорт CSV</button>
+        <button class="btn btn-primary" onclick="showSendNewsletterForm()"><i class="fas fa-paper-plane"></i> Отправить рассылку</button>
+      </div>
+      <!-- Send Newsletter Form -->
+      <div id="newsletterSendForm" style="display:none;margin-bottom:1.5rem;padding:1.5rem;background:rgba(255,255,255,.06);border-radius:12px;">
+        <h3 style="margin-bottom:1rem;">Новая рассылка</h3>
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:4px;font-size:.9rem;">Тема письма</label>
+          <input type="text" id="nlSubject" class="admin-input" placeholder="Новости НейроКофейни" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;">
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:4px;font-size:.9rem;">Содержание (HTML)</label>
+          <textarea id="nlContent" rows="6" class="admin-input" placeholder="<h2>Привет!</h2><p>Новости кофейни...</p>" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" onclick="sendNewsletter()"><i class="fas fa-paper-plane"></i> Отправить</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('newsletterSendForm').style.display='none'">Отмена</button>
+        </div>
+        <div id="nlResult" style="margin-top:1rem;display:none;"></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Email</th><th>Статус</th><th>Дата подписки</th></tr>
+          </thead>
+          <tbody id="newsletterBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+// ─── Admin Panel JavaScript ────────────────────────────────────
+
+const API = '/api/admin';
+let currentSection = 'dashboard';
+let allSubscribers = [];
+
+function getToken() {
+  return localStorage.getItem('neuro-cafe-token') || sessionStorage.getItem('neuro-cafe-token');
+}
+
+async function adminFetch(url, opts = {}) {
+  const token = getToken();
+  if (!token) { window.location.href = 'login.php'; return; }
+  const res = await fetch(API + url, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, ...(opts.headers || {}) },
+  });
+  const data = await res.json();
+  if (res.status === 401) {
+    alert(data.message || 'Войдите в аккаунт');
+    window.location.href = 'login.php';
+    return null;
+  }
+  if (res.status === 403) {
+    alert(data.message || 'Недостаточно прав. Доступ только для администраторов.');
+    window.location.href = 'profile.php';
+    return null;
+  }
+  return data;
+}
+
+function adminLogout() {
+  localStorage.removeItem('neuro-cafe-token');
+  localStorage.removeItem('neuro-cafe-current-user');
+  sessionStorage.removeItem('neuro-cafe-token');
+  sessionStorage.removeItem('neuro-cafe-current-user');
+  window.location.href = 'login.php';
+}
+
+// ─── Navigation ────────────────────────────────────────────────
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    const section = this.dataset.section;
+    switchSection(section);
+  });
+});
+
+function switchSection(section) {
+  currentSection = section;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + section).classList.add('active');
+  document.querySelector('[data-section="' + section + '"]').classList.add('active');
+  const titles = { dashboard: 'Дашборд', orders: 'Заказы', menu: 'Меню', users: 'Пользователи', bookings: 'Бронирования', contacts: 'Сообщения', newsletter: 'Рассылка' };
+  document.getElementById('pageTitle').textContent = titles[section] || section;
+  loadSection(section);
+}
+
+function loadSection(section) {
+  switch(section) {
+    case 'dashboard': loadDashboard(); break;
+    case 'orders': loadOrders(); break;
+    case 'menu': loadMenu(); break;
+    case 'users': loadUsers(); break;
+    case 'bookings': loadBookings(); break;
+    case 'contacts': loadContacts(); break;
+    case 'newsletter': loadNewsletter(); break;
+  }
+}
+
+// ─── Dashboard ─────────────────────────────────────────────────
+async function loadDashboard() {
+  const data = await adminFetch('/dashboard');
+  if (!data || !data.success) return;
+  const s = data.stats;
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-bag"></i></div><div class="stat-info"><span class="stat-value">${s.ordersToday}</span><span class="stat-label">Заказов сегодня</span></div></div>
+    <div class="stat-card accent"><div class="stat-icon"><i class="fas fa-ruble-sign"></i></div><div class="stat-info"><span class="stat-value">${s.revenueToday.toLocaleString('ru')} ₽</span><span class="stat-label">Выручка сегодня</span></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-info"><span class="stat-value">${s.pendingOrders}</span><span class="stat-label">Ожидают обработки</span></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-info"><span class="stat-value">${s.totalUsers}</span><span class="stat-label">Пользователей</span></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-info"><span class="stat-value">${s.pendingBookings}</span><span class="stat-label">Новые бронирования</span></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-envelope-open"></i></div><div class="stat-info"><span class="stat-value">${s.newContacts}</span><span class="stat-label">Новые сообщения</span></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-receipt"></i></div><div class="stat-info"><span class="stat-value">${s.totalOrders}</span><span class="stat-label">Всего заказов</span></div></div>
+    <div class="stat-card accent"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-info"><span class="stat-value">${s.totalRevenue.toLocaleString('ru')} ₽</span><span class="stat-label">Общая выручка</span></div></div>
+  `;
+}
+
+// ─── Orders ────────────────────────────────────────────────────
+async function loadOrders(page) {
+  page = page || 1;
+  const status = document.getElementById('orderStatusFilter').value;
+  const q = status ? '&status=' + status : '';
+  const data = await adminFetch('/orders?page=' + page + '&limit=15' + q);
+  if (!data || !data.success) return;
+
+  const statusLabels = { pending: 'Ожидает', confirmed: 'Подтверждён', preparing: 'Готовится', ready: 'Готов', delivered: 'Доставлен', cancelled: 'Отменён' };
+  const payLabels = { pending: 'Не оплачен', paid: 'Оплачен' };
+  const statusColors = { pending: '#f59e0b', confirmed: '#3b82f6', preparing: '#8b5cf6', ready: '#22c55e', delivered: '#10b981', cancelled: '#ef4444' };
+
+  document.getElementById('ordersBody').innerHTML = data.orders.map(o => `
+    <tr>
+      <td title="${o.id}">${o.id.slice(0,8)}...</td>
+      <td>${o.firstName || ''} ${o.lastName || ''}<br><small>${o.email || ''}</small></td>
+      <td><strong>${o.total} ₽</strong></td>
+      <td><span class="badge" style="background:${statusColors[o.status] || '#666'}">${statusLabels[o.status] || o.status}</span></td>
+      <td><span class="badge ${o.paymentStatus === 'paid' ? 'badge-success' : 'badge-warning'}">${payLabels[o.paymentStatus] || o.paymentStatus}</span></td>
+      <td>${new Date(o.createdAt).toLocaleString('ru')}</td>
+      <td>
+        <select onchange="updateOrderStatus('${o.id}', this.value)" class="inline-select">
+          <option value="">Изменить...</option>
+          <option value="confirmed">Подтвердить</option>
+          <option value="preparing">Готовится</option>
+          <option value="ready">Готов</option>
+          <option value="delivered">Доставлен</option>
+          <option value="cancelled">Отменить</option>
+        </select>
+      </td>
+    </tr>
+  `).join('');
+
+  renderPagination('ordersPagination', data.total, data.page, data.limit, loadOrders);
+}
+
+async function updateOrderStatus(id, status) {
+  if (!status) return;
+  await adminFetch('/orders/' + id, { method: 'PATCH', body: JSON.stringify({ status }) });
+  loadOrders();
+}
+
+// ─── Menu ──────────────────────────────────────────────────────
+async function loadMenu() {
+  const data = await adminFetch('/menu');
+  if (!data || !data.success) return;
+
+  document.getElementById('menuGrid').innerHTML = data.menu.map(item => `
+    <div class="menu-card">
+      <div class="menu-card-img"><img src="${item.image}" alt="${item.name}"></div>
+      <div class="menu-card-body">
+        <h4>${item.name}</h4>
+        <p>${item.description}</p>
+        <div class="menu-card-sizes">${(item.sizes || []).map(s => '<span class="size-tag">' + s.size + ': ' + s.price + '₽</span>').join(' ')}</div>
+        <div class="menu-card-meta">
+          <span class="badge">${item.category}</span>
+          <span class="badge ${item.available ? 'badge-success' : 'badge-warning'}">${item.available ? 'Доступен' : 'Скрыт'}</span>
+        </div>
+      </div>
+      <div class="menu-card-actions">
+        <button class="btn btn-sm" onclick="editMenuItem('${item.id}')"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteMenuItem('${item.id}', '${item.name}')"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+
+  window._menuData = data.menu;
+}
+
+function showMenuForm(item) {
+  document.getElementById('menuFormTitle').textContent = item ? 'Редактировать' : 'Новый товар';
+  document.getElementById('menuItemId').value = item ? item.id : '';
+  document.getElementById('menuName').value = item ? item.name : '';
+  document.getElementById('menuDesc').value = item ? item.description : '';
+  document.getElementById('menuImage').value = item ? item.image : 'images/img_1.jpg';
+  document.getElementById('menuCategory').value = item ? item.category : 'coffee';
+  const container = document.getElementById('sizesContainer');
+  container.innerHTML = '';
+  if (item && item.sizes) {
+    item.sizes.forEach(s => addSizeRow(s.size, s.price));
+  } else {
+    addSizeRow('200мл', '');
+  }
+  document.getElementById('menuModal').style.display = 'flex';
+}
+
+function closeMenuModal() { document.getElementById('menuModal').style.display = 'none'; }
+
+function addSizeRow(size, price) {
+  const row = document.createElement('div');
+  row.className = 'size-row';
+  row.innerHTML = '<input type="text" placeholder="Размер" class="size-input" value="' + (size || '') + '"> <input type="number" step="0.01" placeholder="Цена" class="price-input" value="' + (price || '') + '"> <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>';
+  document.getElementById('sizesContainer').appendChild(row);
+}
+
+async function saveMenuItem(e) {
+  e.preventDefault();
+  const id = document.getElementById('menuItemId').value;
+  const body = {
+    name: document.getElementById('menuName').value,
+    description: document.getElementById('menuDesc').value,
+    image: document.getElementById('menuImage').value,
+    category: document.getElementById('menuCategory').value,
+    sizes: Array.from(document.querySelectorAll('.size-row')).map(row => ({
+      size: row.querySelector('.size-input').value,
+      price: parseFloat(row.querySelector('.price-input').value),
+    })).filter(s => s.size && s.price),
+  };
+
+  if (id) {
+    await adminFetch('/menu/' + id, { method: 'PATCH', body: JSON.stringify(body) });
+  } else {
+    await adminFetch('/menu', { method: 'POST', body: JSON.stringify(body) });
+  }
+  closeMenuModal();
+  loadMenu();
+}
+
+function editMenuItem(id) {
+  const item = (window._menuData || []).find(i => i.id === id);
+  if (item) showMenuForm(item);
+}
+
+async function deleteMenuItem(id, name) {
+  if (!confirm('Удалить «' + name + '»?')) return;
+  await adminFetch('/menu/' + id, { method: 'DELETE' });
+  loadMenu();
+}
+
+// ─── Users ─────────────────────────────────────────────────────
+let userSearchTimer;
+function debounceLoadUsers() {
+  clearTimeout(userSearchTimer);
+  userSearchTimer = setTimeout(() => loadUsers(), 300);
+}
+
+async function loadUsers(page) {
+  page = page || 1;
+  const search = document.getElementById('userSearch').value;
+  const q = search ? '&search=' + encodeURIComponent(search) : '';
+  const data = await adminFetch('/users?page=' + page + '&limit=20' + q);
+  if (!data || !data.success) return;
+
+  document.getElementById('usersBody').innerHTML = data.users.map(u => `
+    <tr>
+      <td>${u.firstName} ${u.lastName}</td>
+      <td>${u.email}</td>
+      <td>${u.phone || '—'}</td>
+      <td>
+        <select onchange="updateUserRole('${u.id}', this.value)" class="inline-select">
+          <option value="user" ${u.role === 'user' ? 'selected' : ''}>user</option>
+          <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>admin</option>
+        </select>
+      </td>
+      <td>${u.bonusPoints || 0}</td>
+      <td>${new Date(u.createdAt).toLocaleDateString('ru')}</td>
+      <td></td>
+    </tr>
+  `).join('');
+
+  renderPagination('usersPagination', data.total, data.page, data.limit, loadUsers);
+}
+
+async function updateUserRole(id, role) {
+  await adminFetch('/users/' + id, { method: 'PATCH', body: JSON.stringify({ role }) });
+}
+
+// ─── Bookings ──────────────────────────────────────────────────
+async function loadBookings(page) {
+  page = page || 1;
+  const status = document.getElementById('bookingStatusFilter').value;
+  const q = status ? '&status=' + status : '';
+  const data = await adminFetch('/bookings?page=' + page + '&limit=20' + q);
+  if (!data || !data.success) return;
+
+  const statusLabels = { pending: 'Ожидает', confirmed: 'Подтверждено', cancelled: 'Отменено' };
+  const statusColors = { pending: '#f59e0b', confirmed: '#22c55e', cancelled: '#ef4444' };
+
+  document.getElementById('bookingsBody').innerHTML = data.bookings.map(b => `
+    <tr>
+      <td>${b.firstName || '—'} ${b.lastName || ''}<br><small>${b.email || ''}</small></td>
+      <td>${b.guests}</td>
+      <td>${new Date(b.date).toLocaleDateString('ru')}</td>
+      <td>${b.time}</td>
+      <td>${b.zone || '—'}</td>
+      <td><span class="badge" style="background:${statusColors[b.status] || '#666'}">${statusLabels[b.status] || b.status}</span></td>
+      <td>
+        <select onchange="updateBookingStatus('${b.id}', this.value)" class="inline-select">
+          <option value="">Изменить...</option>
+          <option value="confirmed">Подтвердить</option>
+          <option value="cancelled">Отменить</option>
+        </select>
+      </td>
+    </tr>
+  `).join('');
+
+  renderPagination('bookingsPagination', data.total, data.page, data.limit, loadBookings);
+}
+
+async function updateBookingStatus(id, status) {
+  if (!status) return;
+  await adminFetch('/bookings/' + id, { method: 'PATCH', body: JSON.stringify({ status }) });
+  loadBookings();
+}
+
+// ─── Contacts ──────────────────────────────────────────────────
+async function loadContacts(page) {
+  page = page || 1;
+  const data = await adminFetch('/contacts?page=' + page + '&limit=20');
+  if (!data || !data.success) return;
+
+  const statusLabels = { new: 'Новое', read: 'Прочитано', resolved: 'Решено' };
+  const statusColors = { new: '#3b82f6', read: '#f59e0b', resolved: '#22c55e' };
+
+  document.getElementById('contactsBody').innerHTML = data.contacts.map(c => `
+    <tr>
+      <td>${c.name}</td>
+      <td>${c.email}</td>
+      <td class="message-cell" title="${c.message}">${c.message.slice(0, 80)}${c.message.length > 80 ? '...' : ''}</td>
+      <td><span class="badge" style="background:${statusColors[c.status] || '#666'}">${statusLabels[c.status] || c.status}</span></td>
+      <td>${new Date(c.createdAt).toLocaleString('ru')}</td>
+      <td>
+        <select onchange="updateContactStatus('${c.id}', this.value)" class="inline-select">
+          <option value="">Изменить...</option>
+          <option value="read">Прочитано</option>
+          <option value="resolved">Решено</option>
+        </select>
+      </td>
+    </tr>
+  `).join('');
+
+  renderPagination('contactsPagination', data.total, data.page, data.limit, loadContacts);
+}
+
+async function updateContactStatus(id, status) {
+  if (!status) return;
+  await adminFetch('/contacts/' + id, { method: 'PATCH', body: JSON.stringify({ status }) });
+  loadContacts();
+}
+
+// ─── Newsletter ────────────────────────────────────────────────
+async function loadNewsletter() {
+  const data = await adminFetch('/newsletter?limit=200');
+  if (!data || !data.success) return;
+  allSubscribers = data.subscribers;
+
+  document.getElementById('newsletterBody').innerHTML = data.subscribers.map(s => `
+    <tr>
+      <td>${s.email}</td>
+      <td><span class="badge" style="background:${s.active !== false ? '#22c55e' : '#ef4444'}">${s.active !== false ? 'Активна' : 'Отписан'}</span></td>
+      <td>${new Date(s.createdAt).toLocaleString('ru')}</td>
+    </tr>
+  `).join('');
+}
+
+function exportSubscribers() {
+  if (!allSubscribers.length) { alert('Нет подписчиков'); return; }
+  const csv = 'email,active,date\n' + allSubscribers.map(s => s.email + ',' + (s.active !== false) + ',' + new Date(s.createdAt).toISOString()).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'subscribers.csv';
+  a.click();
+}
+
+function showSendNewsletterForm() {
+  document.getElementById('newsletterSendForm').style.display = 'block';
+  document.getElementById('nlSubject').value = '';
+  document.getElementById('nlContent').value = '';
+  document.getElementById('nlResult').style.display = 'none';
+}
+
+async function sendNewsletter() {
+  const subject = document.getElementById('nlSubject').value.trim();
+  const content = document.getElementById('nlContent').value.trim();
+  if (!subject || !content) { alert('Заполните тему и содержание'); return; }
+  const resultEl = document.getElementById('nlResult');
+  resultEl.style.display = 'block';
+  resultEl.style.color = '#fff';
+  resultEl.textContent = 'Отправка...';
+  try {
+    const token = getToken();
+    const r = await fetch('/api/newsletter/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ subject, content }),
+    });
+    const res = await r.json();
+    if (res.success) {
+      resultEl.style.color = '#22c55e';
+      resultEl.textContent = res.message || 'Рассылка завершена';
+    } else {
+      resultEl.style.color = '#ef4444';
+      resultEl.textContent = res.message || 'Ошибка отправки';
+    }
+  } catch (e) {
+    resultEl.style.color = '#ef4444';
+    resultEl.textContent = e.message || 'Ошибка';
+  }
+}
+
+// ─── Pagination Helper ─────────────────────────────────────────
+function renderPagination(containerId, total, currentPage, limit, loadFn) {
+  const totalPages = Math.ceil(total / limit);
+  if (totalPages <= 1) { document.getElementById(containerId).innerHTML = ''; return; }
+
+  let html = '';
+  for (let p = 1; p <= totalPages; p++) {
+    html += '<button class="page-btn ' + (p === currentPage ? 'active' : '') + '" onclick="void(0)">' + p + '</button>';
+  }
+  const container = document.getElementById(containerId);
+  container.innerHTML = html;
+  container.querySelectorAll('.page-btn').forEach((btn, i) => {
+    btn.addEventListener('click', () => loadFn(i + 1));
+  });
+}
+
+// ─── Sidebar Toggle (Mobile) ──────────────────────────────────
+document.getElementById('sidebarToggle').addEventListener('click', function() {
+  document.getElementById('adminSidebar').classList.toggle('open');
+});
+
+// ─── Init ──────────────────────────────────────────────────────
+(async function init() {
+  const token = getToken();
+  if (!token) { window.location.href = 'login.php'; return; }
+
+  // Check if user is admin
+  try {
+    const user = JSON.parse(localStorage.getItem('neuro-cafe-current-user') || '{}');
+    document.getElementById('adminName').textContent = user.firstName || 'Администратор';
+  } catch (e) {}
+
+  loadDashboard();
+})();
+</script>
+</body>
+</html>

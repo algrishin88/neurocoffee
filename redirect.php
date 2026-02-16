@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход через Яндекс ID - НейроКофейня</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        p {
+            color: #666;
+            font-size: 16px;
+        }
+        .error {
+            color: #dc3545;
+            padding: 15px;
+            background: #f8d7da;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+        .success {
+            color: #155724;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+        a {
+            color: #667eea;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Вход через Яндекс ID</h2>
+        <div class="spinner" id="spinner"></div>
+        <p id="message">Обработка входа...</p>
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+    </div>
+
+    <script>
+        // Получить параметры из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+
+        // Если есть ошибка
+        if (error) {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('message').style.display = 'none';
+            const errorDiv = document.getElementById('error');
+            errorDiv.style.display = 'block';
+            errorDiv.innerHTML = `
+                <strong>Ошибка авторизации:</strong><br>
+                ${error}: ${errorDescription || 'Неизвестная ошибка'}
+                <br><a href="/">← Вернуться на главную</a>
+            `;
+            return;
+        }
+
+        // Если нет кода
+        if (!code) {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('message').textContent = 'Ошибка: код авторизации не найден';
+            const errorDiv = document.getElementById('error');
+            errorDiv.style.display = 'block';
+            errorDiv.innerHTML = `
+                <strong>Ошибка:</strong> Не удалось получить код авторизации от Яндекса
+                <br><a href="/">← Вернуться на главную</a>
+            `;
+            return;
+        }
+
+        // Отправить код на бэкенд
+        const API_BASE = window.location.origin;
+
+        fetch(`${API_BASE}/api/auth/yandex/callback?code=${code}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('spinner').style.display = 'none';
+
+                if (data.success) {
+                    // Успешный вход
+                    const successDiv = document.getElementById('success');
+                    successDiv.style.display = 'block';
+                    successDiv.innerHTML = `
+                        <strong>✓ Вход выполнен успешно!</strong><br>
+                        Добро пожаловать, ${data.user.firstName}!
+                    `;
+                    document.getElementById('message').style.display = 'none';
+
+                    // Сохранить токен в localStorage
+                    localStorage.setItem('neuro-cafe-token', data.token);
+                    localStorage.setItem('neuro-cafe-current-user', JSON.stringify(data.user));
+
+                    // Перенаправить на профиль через 2 секунды
+                    setTimeout(() => {
+                        window.location.href = '/profile.php';
+                    }, 2000);
+                } else {
+                    // Ошибка на бэкенде
+                    const errorDiv = document.getElementById('error');
+                    errorDiv.style.display = 'block';
+                    errorDiv.innerHTML = `
+                        <strong>Ошибка при входе:</strong><br>
+                        ${data.message || 'Неизвестная ошибка'}
+                        <br><a href="/">← Вернуться на главную</a>
+                    `;
+                    document.getElementById('message').style.display = 'none';
+                }
+            })
+            .catch(err => {
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('message').style.display = 'none';
+                const errorDiv = document.getElementById('error');
+                errorDiv.style.display = 'block';
+                const msg = (err.message === 'Failed to fetch' || !err.message) ? 'Сервер недоступен. Проверьте интернет и попробуйте снова.' : err.message;
+                errorDiv.innerHTML = `
+                    <strong>Ошибка:</strong><br>
+                    ${msg}
+                    <br><a href="/">← Вернуться на главную</a>
+                `;
+                console.error('Error:', err);
+            });
+    </script>
+</body>
+</html>
