@@ -42,7 +42,7 @@ router.post('/create-sbp', auth, async (req, res) => {
     }
 
     const amount = Math.max(1, Math.round(Number(order.total) * 100) / 100);
-    const idempotenceKey = `neuro-${orderId}-${Date.now()}`;
+    const idempotenceKey = `neuro-${orderId}`;
 
     const payload = {
       amount: { value: amount.toFixed(2), currency: 'RUB' },
@@ -108,9 +108,31 @@ router.post('/webhook', async (req, res) => {
   }
 
   try {
+    // Verify order exists and amount matches
+    const orderResult = await db.query(
+      'SELECT "id", "total", "paymentStatus" FROM "orders" WHERE "id" = $1 LIMIT 1',
+      [orderId],
+    );
+    if (orderResult.rowCount === 0) {
+      console.warn('Webhook: order not found', orderId);
+      return res.status(200).send('OK');
+    }
+    const order = orderResult.rows[0];
+
+    if (order.paymentStatus === 'paid') {
+      return res.status(200).send('OK');
+    }
+
+    // Verify payment amount matches order total
+    const paidAmount = parseFloat(payment.amount?.value || 0);
+    if (Math.abs(paidAmount - order.total) > 0.01) {
+      console.error(`Webhook: amount mismatch! Order ${orderId}: expected ${order.total}, got ${paidAmount}`);
+      return res.status(200).send('OK');
+    }
+
     await db.query(
-      'UPDATE "orders" SET "paymentStatus" = $1, "status" = $2, "updatedAt" = NOW() WHERE "id" = $3',
-      ['paid', 'confirmed', orderId],
+      'UPDATE "orders" SET "paymentStatus" = $1, "status" = $2, "yookassaPaymentId" = $3, "updatedAt" = NOW() WHERE "id" = $4',
+      ['paid', 'confirmed', payment.id, orderId],
     );
   } catch (err) {
     console.error('Webhook: update order error', err);

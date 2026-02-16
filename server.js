@@ -1,6 +1,8 @@
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const db = require('./lib/db');
 
@@ -9,10 +11,29 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
+
+// CORS — restrict to production domain
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? ['https://neurocup.ru', 'https://www.neurocup.ru']
+  : undefined;
+app.use(cors(allowedOrigins ? { origin: allowedOrigins, credentials: true } : {}));
+
+// Body parsing with size limits
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+
+// Global rate limiter
+app.use(rateLimit({ windowMs: 60 * 1000, max: 100, standardHeaders: true, legacyHeaders: false }));
+
+// Strict rate limiters for sensitive endpoints
+const authLimiter = rateLimit({ windowMs: 60 * 1000, max: 5, message: { success: false, message: 'Слишком много попыток. Попробуйте через минуту.' } });
+const aiLimiter = rateLimit({ windowMs: 60 * 1000, max: 10, message: { success: false, message: 'Слишком много запросов к AI. Подождите минуту.' } });
+const contactLimiter = rateLimit({ windowMs: 60 * 1000, max: 3, message: { success: false, message: 'Слишком много сообщений. Подождите минуту.' } });
 
 // Защита: не отдавать бэкенд при раздаче статики (Спринтхост и др.)
 const BLOCKED_PREFIXES = ['/lib', '/routes', '/middleware', '/models', '/scripts', '/node_modules'];
@@ -24,16 +45,19 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+// Routes with rate limiters on sensitive endpoints
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/bookings', require('./routes/bookings'));
-app.use('/api/contacts', require('./routes/contacts'));
+app.use('/api/contacts', contactLimiter, require('./routes/contacts'));
 app.use('/api/newsletter', require('./routes/newsletter'));
 app.use('/api/menu', require('./routes/menu'));
-app.use('/api/ai', require('./routes/ai'));
+app.use('/api/ai', aiLimiter, require('./routes/ai'));
 app.use('/api/payments', require('./routes/payments'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Health check
 app.get('/api/health', async (req, res) => {
@@ -114,12 +138,17 @@ async function initDatabaseSchema() {
         "userId" TEXT NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
         "total" DOUBLE PRECISION NOT NULL,
         "status" TEXT NOT NULL DEFAULT 'pending',
+        "deliveryType" TEXT DEFAULT 'self_pickup',
         "deliveryAddress" TEXT, "phone" TEXT, "notes" TEXT, "recipe" TEXT,
+        "paymentMethod" TEXT DEFAULT 'sbp',
         "paymentStatus" TEXT DEFAULT 'pending', "yookassaPaymentId" TEXT,
         "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
         "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
       );
     `);
+    // Add columns that may be missing on existing databases
+    await db.query(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "deliveryType" TEXT DEFAULT 'self_pickup'`).catch(() => {});
+    await db.query(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "paymentMethod" TEXT DEFAULT 'sbp'`).catch(() => {});
     await db.query(`
       CREATE TABLE IF NOT EXISTS "order_items" (
         "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
@@ -127,9 +156,11 @@ async function initDatabaseSchema() {
         "itemId" INTEGER NOT NULL, "name" TEXT NOT NULL,
         "price" DOUBLE PRECISION NOT NULL, "size" TEXT NOT NULL,
         "image" TEXT, "quantity" INTEGER NOT NULL DEFAULT 1,
+        "recipe" TEXT,
         "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
       );
     `);
+    await db.query(`ALTER TABLE "order_items" ADD COLUMN IF NOT EXISTS "recipe" TEXT`).catch(() => {});
     await db.query(`
       CREATE TABLE IF NOT EXISTS "bookings" (
         "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),

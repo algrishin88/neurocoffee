@@ -5,20 +5,14 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 async function getOrCreateCart(userId) {
-  const existing = await db.query(
-    'SELECT "id", "userId", "createdAt", "updatedAt" FROM "carts" WHERE "userId" = $1 LIMIT 1',
+  // Use INSERT ON CONFLICT to avoid race condition with concurrent requests
+  const result = await db.query(
+    `INSERT INTO "carts" ("userId") VALUES ($1)
+     ON CONFLICT ("userId") DO UPDATE SET "updatedAt" = NOW()
+     RETURNING "id", "userId", "createdAt", "updatedAt"`,
     [userId],
   );
-
-  if (existing.rowCount > 0) {
-    return existing.rows[0];
-  }
-
-  const created = await db.query(
-    'INSERT INTO "carts" ("userId") VALUES ($1) RETURNING "id", "userId", "createdAt", "updatedAt"',
-    [userId],
-  );
-  return created.rows[0];
+  return result.rows[0];
 }
 
 async function getCartWithItems(userId) {
@@ -69,13 +63,41 @@ router.get('/', auth, async (req, res) => {
 // Add item to cart
 router.post('/add', auth, async (req, res) => {
   try {
-    const { itemId, name, price, size, image, quantity = 1 } = req.body;
+    const { itemId, name, size, image, quantity = 1 } = req.body;
 
-    if (!itemId || !name || !price || !size) {
+    if (!itemId || !name || !size) {
       return res.status(400).json({
         success: false,
         message: 'Не все обязательные поля заполнены',
       });
+    }
+
+    // Server-side price lookup — never trust client price
+    const priceResult = await db.query(
+      `SELECT mis."price", mi."name", mi."image"
+       FROM "menu_item_sizes" mis
+       JOIN "menu_items" mi ON mi."id" = mis."menuItemId"
+       WHERE mi."itemId" = $1 AND mis."size" = $2 AND mi."available" = true
+       LIMIT 1`,
+      [itemId, size],
+    );
+
+    let verifiedPrice;
+    let verifiedName = name;
+    let verifiedImage = image;
+
+    if (priceResult.rowCount > 0) {
+      verifiedPrice = priceResult.rows[0].price;
+      verifiedName = priceResult.rows[0].name;
+      verifiedImage = priceResult.rows[0].image || image;
+    } else {
+      // Fallback for special/dynamic items (e.g. neuro-coffee) — accept client price but log
+      const clientPrice = parseFloat(req.body.price);
+      if (!clientPrice || clientPrice <= 0 || clientPrice > 10000) {
+        return res.status(400).json({ success: false, message: 'Товар не найден или недоступен' });
+      }
+      verifiedPrice = clientPrice;
+      console.warn(`Cart add: price from client for itemId=${itemId} size=${size} price=${clientPrice}`);
     }
 
     // Get or create cart
@@ -96,7 +118,7 @@ router.post('/add', auth, async (req, res) => {
     } else {
       await db.query(
         'INSERT INTO "cart_items" ("cartId", "itemId", "name", "price", "size", "image", "quantity") VALUES ($1, $2, $3, $4, $5, $6, $7)',
-        [cart.id, itemId, name, price, size, image, quantity],
+        [cart.id, itemId, verifiedName, verifiedPrice, size, verifiedImage, quantity],
       );
     }
 

@@ -8,14 +8,16 @@ const yandex = require('../lib/yandex');
 
 const router = express.Router();
 
+// JWT secret — must be set via environment
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('⚠️  JWT_SECRET не установлен! Аутентификация не будет работать.');
+}
+
 // Generate JWT token
 const generateToken = (userId) => {
-  return jwt.sign(
-    { userId },
-    process.env.JWT_SECRET ||
-      'your-super-secret-jwt-key-change-this-in-production',
-    { expiresIn: '7d' },
-  );
+  if (!JWT_SECRET) throw new Error('JWT_SECRET not configured');
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
 };
 
 // Register

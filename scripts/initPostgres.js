@@ -61,10 +61,14 @@ async function initDatabase() {
         "userId" TEXT NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
         "total" DOUBLE PRECISION NOT NULL,
         "status" TEXT NOT NULL DEFAULT 'pending',
+        "deliveryType" TEXT DEFAULT 'self_pickup',
         "deliveryAddress" TEXT,
         "phone" TEXT,
         "notes" TEXT,
         "recipe" TEXT,
+        "paymentMethod" TEXT DEFAULT 'sbp',
+        "paymentStatus" TEXT DEFAULT 'pending',
+        "yookassaPaymentId" TEXT,
         "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
         "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
       );
@@ -81,6 +85,7 @@ async function initDatabase() {
         "size" TEXT NOT NULL,
         "image" TEXT,
         "quantity" INTEGER NOT NULL DEFAULT 1,
+        "recipe" TEXT,
         "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
       );
     `);

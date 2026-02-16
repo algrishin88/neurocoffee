@@ -12,7 +12,10 @@ const auth = async (req, res, next) => {
             });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production');
+        if (!process.env.JWT_SECRET) {
+            return res.status(500).json({ success: false, message: 'Сервер не настроен (JWT)' });
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const result = await db.query(
             'SELECT "id", "firstName", "lastName", "email", "phone" FROM "users" WHERE "id" = $1 LIMIT 1',
             [decoded.userId]

@@ -145,7 +145,8 @@ router.post('/chat', async (req, res) => {
             });
         }
 
-        const history = Array.isArray(req.body.history) ? req.body.history : [];
+        const rawHistory = Array.isArray(req.body.history) ? req.body.history : [];
+        const history = rawHistory.filter(m => m.role === 'user' || m.role === 'assistant');
         const sys = `Ты — дружелюбный виртуальный собеседник в нейрокофейне. Общайся по душам: программирование, кофе, жизнь. Коротко, тепло, по-человечески. Не более 2–3 абзацев.
 
 Ты также отвечаешь на вопросы о проекте «НейроКофейня» (этот сайт). Кратко что умеет проект:

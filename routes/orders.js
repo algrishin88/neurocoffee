@@ -22,9 +22,9 @@ router.post('/', auth, async (req, res) => {
     // Start transaction
     await client.query('BEGIN');
 
-    // Get user cart with items
+    // Get user cart with items (lock for update to prevent double-ordering)
     const cartResult = await client.query(
-      'SELECT "id" FROM "carts" WHERE "userId" = $1 LIMIT 1',
+      'SELECT "id" FROM "carts" WHERE "userId" = $1 LIMIT 1 FOR UPDATE',
       [req.userId],
     );
 
@@ -125,14 +125,18 @@ router.post('/', auth, async (req, res) => {
       cartId,
     ]);
 
-    // Bonus points: 1 point per 100 RUB, minimum 1 per order
-    const bonusToAdd = Math.max(1, Math.floor(total / 100));
-    await client.query(
-      'UPDATE "users" SET "bonusPoints" = COALESCE("bonusPoints", 0) + $1, "updatedAt" = NOW() WHERE "id" = $2',
-      [bonusToAdd, req.userId],
-    ).catch(() => {}); // ignore if column not yet migrated
-
     await client.query('COMMIT');
+
+    // Bonus points: 1 point per 100 RUB, minimum 1 per order (outside transaction to avoid abort)
+    const bonusToAdd = Math.max(1, Math.floor(total / 100));
+    try {
+      await db.query(
+        'UPDATE "users" SET "bonusPoints" = COALESCE("bonusPoints", 0) + $1, "updatedAt" = NOW() WHERE "id" = $2',
+        [bonusToAdd, req.userId],
+      );
+    } catch (bonusErr) {
+      console.warn('Bonus points update failed (non-critical):', bonusErr.message);
+    }
 
     res.status(201).json({
       success: true,

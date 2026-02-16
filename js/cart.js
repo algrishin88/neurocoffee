@@ -342,7 +342,7 @@ class CartManager {
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            this.doPaySbp();
+            this.checkout();
         });
         cancelBtn.addEventListener('click', () => this.hideCheckoutForm());
     }

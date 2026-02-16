@@ -136,8 +136,8 @@
                     document.getElementById('message').style.display = 'none';
 
                     // Сохранить токен в localStorage
-                    localStorage.setItem('auth_token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('neuro-cafe-token', data.token);
+                    localStorage.setItem('neuro-cafe-current-user', JSON.stringify(data.user));
 
                     // Перенаправить на профиль через 2 секунды
                     setTimeout(() => {
