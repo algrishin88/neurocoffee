@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/', auth, async (req, res) => {
   const client = await db.getClient();
   try {
-    const { deliveryType, deliveryAddress, phone, notes, recipe } = req.body;
+    const { deliveryType, deliveryAddress, phone, notes, recipe, useBonusPoints } = req.body;
     const type = (deliveryType || 'self_pickup') === 'delivery' ? 'delivery' : 'self_pickup';
     const address = type === 'self_pickup' ? 'Самовывоз' : (deliveryAddress || '').trim();
 
@@ -21,6 +21,13 @@ router.post('/', auth, async (req, res) => {
 
     // Start transaction
     await client.query('BEGIN');
+
+    // Get user bonus points (with lock)
+    const userResult = await client.query(
+      'SELECT "bonusPoints" FROM "users" WHERE "id" = $1 FOR UPDATE',
+      [req.userId],
+    );
+    const availableBonuses = userResult.rows[0]?.bonusPoints || 0;
 
     // Get user cart with items (lock for update to prevent double-ordering)
     const cartResult = await client.query(
@@ -54,10 +61,18 @@ router.post('/', auth, async (req, res) => {
     const items = itemsResult.rows;
 
     // Calculate total
-    const total = items.reduce(
+    let subtotal = items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
+
+    // Bonus points discount: 1 bonus = 1 RUB, max 50% of order
+    let bonusDiscount = 0;
+    if (useBonusPoints && availableBonuses > 0) {
+      const maxDiscount = Math.floor(subtotal * 0.5); // max 50% discount
+      bonusDiscount = Math.min(availableBonuses, maxDiscount);
+    }
+    const total = Math.max(1, subtotal - bonusDiscount);
 
     // Recipe: order-level (нейро-кофе) and per-item for neuro
     let recipeJson = null;
@@ -125,14 +140,30 @@ router.post('/', auth, async (req, res) => {
       cartId,
     ]);
 
+    // Deduct bonus points if used (inside transaction for consistency)
+    if (bonusDiscount > 0) {
+      await client.query(
+        'UPDATE "users" SET "bonusPoints" = COALESCE("bonusPoints", 0) - $1, "updatedAt" = NOW() WHERE "id" = $2',
+        [bonusDiscount, req.userId],
+      );
+      await client.query(
+        'INSERT INTO "bonus_transactions" ("userId", "amount", "type", "description", "orderId") VALUES ($1, $2, $3, $4, $5)',
+        [req.userId, -bonusDiscount, 'spent', `Скидка ${bonusDiscount} ₽ на заказ`, order.id],
+      );
+    }
+
     await client.query('COMMIT');
 
-    // Bonus points: 1 point per 100 RUB, minimum 1 per order (outside transaction to avoid abort)
-    const bonusToAdd = Math.max(1, Math.floor(total / 100));
+    // Bonus points earned: 1 point per 100 RUB of original subtotal, minimum 1 per order
+    const bonusToAdd = Math.max(1, Math.floor(subtotal / 100));
     try {
       await db.query(
         'UPDATE "users" SET "bonusPoints" = COALESCE("bonusPoints", 0) + $1, "updatedAt" = NOW() WHERE "id" = $2',
         [bonusToAdd, req.userId],
+      );
+      await db.query(
+        'INSERT INTO "bonus_transactions" ("userId", "amount", "type", "description", "orderId") VALUES ($1, $2, $3, $4, $5)',
+        [req.userId, bonusToAdd, 'earned', `Начислено ${bonusToAdd} бонусов за заказ`, order.id],
       );
     } catch (bonusErr) {
       console.warn('Bonus points update failed (non-critical):', bonusErr.message);
@@ -141,8 +172,11 @@ router.post('/', auth, async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Заказ успешно создан',
+      bonusUsed: bonusDiscount,
+      bonusEarned: bonusToAdd,
       order: {
         ...order,
+        bonusDiscount,
         items: orderItemsResult.rows,
       },
     });
@@ -239,6 +273,28 @@ router.get('/:id', auth, async (req, res) => {
       success: false,
       message: 'Ошибка при получении заказа',
     });
+  }
+});
+
+// Get user bonus history
+router.get('/bonus-history', auth, async (req, res) => {
+  try {
+    const result = await db.query(
+      'SELECT "id", "amount", "type", "description", "orderId", "createdAt" FROM "bonus_transactions" WHERE "userId" = $1 ORDER BY "createdAt" DESC LIMIT 50',
+      [req.userId],
+    );
+    const userResult = await db.query(
+      'SELECT "bonusPoints" FROM "users" WHERE "id" = $1 LIMIT 1',
+      [req.userId],
+    );
+    res.json({
+      success: true,
+      balance: userResult.rows[0]?.bonusPoints || 0,
+      transactions: result.rows,
+    });
+  } catch (error) {
+    console.error('Bonus history error:', error);
+    res.status(500).json({ success: false, message: 'Ошибка получения истории бонусов' });
   }
 });
 

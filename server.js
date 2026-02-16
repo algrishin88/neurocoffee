@@ -58,6 +58,7 @@ app.use('/api/menu', require('./routes/menu'));
 app.use('/api/ai', aiLimiter, require('./routes/ai'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/support', require('./routes/support'));
 
 // Health check
 app.get('/api/health', async (req, res) => {
@@ -169,6 +170,7 @@ async function initDatabaseSchema() {
         "date" TIMESTAMP WITH TIME ZONE NOT NULL,
         "time" TEXT NOT NULL, "zone" TEXT,
         "status" TEXT NOT NULL DEFAULT 'pending', "notes" TEXT,
+        "name" TEXT, "phone" TEXT,
         "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
         "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
       );
@@ -185,6 +187,47 @@ async function initDatabaseSchema() {
       CREATE TABLE IF NOT EXISTS "newsletter_subscribers" (
         "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
         "email" TEXT NOT NULL UNIQUE,
+        "active" BOOLEAN DEFAULT TRUE,
+        "unsubscribeToken" TEXT,
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await db.query('ALTER TABLE "newsletter_subscribers" ADD COLUMN IF NOT EXISTS "active" BOOLEAN DEFAULT TRUE').catch(() => {});
+    await db.query('ALTER TABLE "newsletter_subscribers" ADD COLUMN IF NOT EXISTS "unsubscribeToken" TEXT').catch(() => {});
+    await db.query('ALTER TABLE "newsletter_subscribers" ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()').catch(() => {});
+
+    // Support chat messages table for operator handoff
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "support_chats" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "userId" TEXT REFERENCES "users"("id") ON DELETE SET NULL,
+        "userName" TEXT,
+        "userEmail" TEXT,
+        "status" TEXT NOT NULL DEFAULT 'bot',
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "support_messages" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "chatId" TEXT NOT NULL REFERENCES "support_chats"("id") ON DELETE CASCADE,
+        "role" TEXT NOT NULL,
+        "message" TEXT NOT NULL,
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    // Bonus transactions table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "bonus_transactions" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "userId" TEXT NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+        "amount" INTEGER NOT NULL,
+        "type" TEXT NOT NULL,
+        "description" TEXT,
+        "orderId" TEXT,
         "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
       );
     `);

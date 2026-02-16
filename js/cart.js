@@ -318,6 +318,13 @@ class CartManager {
                 <input type="tel" id="checkoutPhone" required class="checkout-input" placeholder="+7 (999) 123-45-67">
                 <label class="checkout-label">Комментарий</label>
                 <input type="text" id="checkoutNotes" class="checkout-input" placeholder="Пожелания к заказу">
+                <div id="bonusBlock" class="checkout-bonus-block" style="display:none">
+                    <label class="checkout-bonus-label">
+                        <input type="checkbox" id="useBonusPoints">
+                        <span>Списать бонусы: <strong id="bonusAvailable">0</strong> (скидка до 50%)</span>
+                    </label>
+                    <div id="bonusDiscount" class="bonus-discount-info" style="display:none"></div>
+                </div>
                 <div class="checkout-form-btns">
                     <button type="submit" class="checkout-btn checkout-btn-sbp"><i class="fas fa-qrcode"></i> Оплатить СБП</button>
                     <button type="button" class="checkout-btn checkout-btn-cancel" id="checkoutCancel">Отмена</button>
@@ -347,7 +354,7 @@ class CartManager {
         cancelBtn.addEventListener('click', () => this.hideCheckoutForm());
     }
 
-    showCheckoutForm() {
+    async showCheckoutForm() {
         if (this.cart.length === 0 || !this.getCurrentUser()) return;
         const wrap = document.getElementById('checkoutFormWrap');
         const btn = document.getElementById('checkoutBtn');
@@ -363,6 +370,36 @@ class CartManager {
         document.getElementById('checkoutAddress').removeAttribute('required');
         wrap.style.display = 'block';
         btn.style.display = 'none';
+
+        // Load bonus points
+        try {
+            if (window.API && window.API.bonus) {
+                const bonusRes = await window.API.bonus.getHistory();
+                const balance = bonusRes.balance || 0;
+                const bonusBlock = document.getElementById('bonusBlock');
+                const bonusAvail = document.getElementById('bonusAvailable');
+                if (balance > 0 && bonusBlock) {
+                    bonusBlock.style.display = 'block';
+                    bonusAvail.textContent = balance;
+                    const checkbox = document.getElementById('useBonusPoints');
+                    const discountInfo = document.getElementById('bonusDiscount');
+                    checkbox.checked = false;
+                    checkbox.addEventListener('change', () => {
+                        if (checkbox.checked) {
+                            const total = this.getTotalPrice();
+                            const maxDiscount = Math.floor(total * 0.5);
+                            const discount = Math.min(balance, maxDiscount);
+                            discountInfo.style.display = 'block';
+                            discountInfo.textContent = `Скидка: -${discount} ₽ (итого: ${total - discount} ₽)`;
+                        } else {
+                            discountInfo.style.display = 'none';
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+            console.warn('Could not load bonus points:', e);
+        }
     }
 
     hideCheckoutForm() {
@@ -540,12 +577,21 @@ class CartManager {
                     recipe = window.generatedRecipe;
                 }
 
+                // Get checkout form values
+                const checkoutForm = document.getElementById('checkoutForm');
+                const deliveryRadio = checkoutForm ? checkoutForm.querySelector('input[name="deliveryType"]:checked') : null;
+                const phoneInput = document.getElementById('checkoutPhone');
+                const notesInput = document.getElementById('checkoutNotes');
+                const addressInput = document.getElementById('checkoutAddress');
+                const bonusCheckbox = document.getElementById('useBonusPoints');
+
                 const orderData = {
-                    deliveryType: 'self_pickup',
-                    deliveryAddress: null,
-                    phone: currentUser.phone || 'Не указан',
-                    notes: 'Нет',
-                    recipe: recipe ? JSON.stringify(recipe) : null
+                    deliveryType: deliveryRadio ? deliveryRadio.value : 'self_pickup',
+                    deliveryAddress: addressInput ? addressInput.value : null,
+                    phone: (phoneInput ? phoneInput.value : '') || currentUser.phone || 'Не указан',
+                    notes: (notesInput ? notesInput.value : '') || 'Нет',
+                    recipe: recipe ? JSON.stringify(recipe) : null,
+                    useBonusPoints: bonusCheckbox ? bonusCheckbox.checked : false
                 };
 
                 const response = await window.API.orders.createOrder(orderData);

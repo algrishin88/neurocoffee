@@ -1,11 +1,11 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const db = require('../lib/db');
-const { sendContactEmail } = require('../lib/mail');
+const { sendContactEmail, sendContactConfirmation } = require('../lib/mail');
 
 const router = express.Router();
 
-// Create contact message (saves to DB and optionally sends email to cafe)
+// Create contact message (saves to DB, sends email to cafe + confirmation to user)
 router.post(
   '/',
   [
@@ -17,10 +17,7 @@ router.post(
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          errors: errors.array(),
-        });
+        return res.status(400).json({ success: false, errors: errors.array() });
       }
 
       const { name, email, message } = req.body;
@@ -30,22 +27,21 @@ router.post(
         [name, email, message, 'new'],
       );
 
-      await sendContactEmail({ name, email, message });
+      // Send email to cafe (non-blocking)
+      sendContactEmail({ name, email, message }).catch(() => {});
+      // Send confirmation to user (non-blocking)
+      sendContactConfirmation({ name, email, message }).catch(() => {});
 
       res.status(201).json({
         success: true,
-        message: 'Сообщение успешно отправлено',
+        message: 'Сообщение успешно отправлено! Мы ответим вам на email.',
         contact: result.rows[0],
       });
     } catch (error) {
       console.error('Create contact error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Ошибка при отправке сообщения',
-      });
+      res.status(500).json({ success: false, message: 'Ошибка при отправке сообщения' });
     }
   },
 );
 
 module.exports = router;
-

@@ -186,11 +186,29 @@
     <section class="section" id="section-newsletter">
       <div class="section-toolbar">
         <button class="btn btn-secondary" onclick="exportSubscribers()"><i class="fas fa-download"></i> Экспорт CSV</button>
+        <button class="btn btn-primary" onclick="showSendNewsletterForm()"><i class="fas fa-paper-plane"></i> Отправить рассылку</button>
+      </div>
+      <!-- Send Newsletter Form -->
+      <div id="newsletterSendForm" style="display:none;margin-bottom:1.5rem;padding:1.5rem;background:rgba(255,255,255,.06);border-radius:12px;">
+        <h3 style="margin-bottom:1rem;">Новая рассылка</h3>
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:4px;font-size:.9rem;">Тема письма</label>
+          <input type="text" id="nlSubject" class="admin-input" placeholder="Новости НейроКофейни" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;">
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:4px;font-size:.9rem;">Содержание (HTML)</label>
+          <textarea id="nlContent" rows="6" class="admin-input" placeholder="<h2>Привет!</h2><p>Новости кофейни...</p>" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" onclick="sendNewsletter()"><i class="fas fa-paper-plane"></i> Отправить</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('newsletterSendForm').style.display='none'">Отмена</button>
+        </div>
+        <div id="nlResult" style="margin-top:1rem;display:none;"></div>
       </div>
       <div class="table-wrap">
         <table class="data-table">
           <thead>
-            <tr><th>Email</th><th>Дата подписки</th></tr>
+            <tr><th>Email</th><th>Статус</th><th>Дата подписки</th></tr>
           </thead>
           <tbody id="newsletterBody"></tbody>
         </table>
@@ -531,18 +549,58 @@ async function loadNewsletter() {
   allSubscribers = data.subscribers;
 
   document.getElementById('newsletterBody').innerHTML = data.subscribers.map(s => `
-    <tr><td>${s.email}</td><td>${new Date(s.createdAt).toLocaleString('ru')}</td></tr>
+    <tr>
+      <td>${s.email}</td>
+      <td><span class="badge" style="background:${s.active !== false ? '#22c55e' : '#ef4444'}">${s.active !== false ? 'Активна' : 'Отписан'}</span></td>
+      <td>${new Date(s.createdAt).toLocaleString('ru')}</td>
+    </tr>
   `).join('');
 }
 
 function exportSubscribers() {
   if (!allSubscribers.length) { alert('Нет подписчиков'); return; }
-  const csv = 'email,date\n' + allSubscribers.map(s => s.email + ',' + new Date(s.createdAt).toISOString()).join('\n');
+  const csv = 'email,active,date\n' + allSubscribers.map(s => s.email + ',' + (s.active !== false) + ',' + new Date(s.createdAt).toISOString()).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'subscribers.csv';
   a.click();
+}
+
+function showSendNewsletterForm() {
+  document.getElementById('newsletterSendForm').style.display = 'block';
+  document.getElementById('nlSubject').value = '';
+  document.getElementById('nlContent').value = '';
+  document.getElementById('nlResult').style.display = 'none';
+}
+
+async function sendNewsletter() {
+  const subject = document.getElementById('nlSubject').value.trim();
+  const content = document.getElementById('nlContent').value.trim();
+  if (!subject || !content) { alert('Заполните тему и содержание'); return; }
+  const resultEl = document.getElementById('nlResult');
+  resultEl.style.display = 'block';
+  resultEl.style.color = '#fff';
+  resultEl.textContent = 'Отправка...';
+  try {
+    const token = getToken();
+    const r = await fetch('/api/newsletter/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ subject, content }),
+    });
+    const res = await r.json();
+    if (res.success) {
+      resultEl.style.color = '#22c55e';
+      resultEl.textContent = res.message || 'Рассылка завершена';
+    } else {
+      resultEl.style.color = '#ef4444';
+      resultEl.textContent = res.message || 'Ошибка отправки';
+    }
+  } catch (e) {
+    resultEl.style.color = '#ef4444';
+    resultEl.textContent = e.message || 'Ошибка';
+  }
 }
 
 // ─── Pagination Helper ─────────────────────────────────────────

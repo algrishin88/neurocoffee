@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const auth = require('../middleware/auth');
+const { sendRecipeToTelegram } = require('../lib/telegram');
 
 const router = express.Router();
 
@@ -106,6 +107,9 @@ router.post('/generate-coffee', auth, async (req, res) => {
             size: extractSize(generatedText),
             fullText: generatedText
         };
+
+        // Send recipe to Telegram (non-blocking)
+        sendRecipeToTelegram(recipe, { firstName: 'Клиент' }).catch(() => {});
 
         res.json({
             success: true,
@@ -261,6 +265,32 @@ function extractSize(text) {
     if (sizeMatch) return sizeMatch[1];
     return '350мл';
 }
+
+// Send recipe to Telegram manually
+router.post('/send-recipe-telegram', auth, async (req, res) => {
+    try {
+        const { recipe } = req.body;
+        if (!recipe || !recipe.name) {
+            return res.status(400).json({ success: false, message: 'Укажите рецепт' });
+        }
+
+        const userResult = await require('../lib/db').query(
+            'SELECT "firstName", "lastName" FROM "users" WHERE "id" = $1 LIMIT 1',
+            [req.userId],
+        );
+        const user = userResult.rows[0] || {};
+        const sent = await sendRecipeToTelegram(recipe, user);
+
+        res.json({
+            success: true,
+            sent,
+            message: sent ? 'Рецепт отправлен в Telegram!' : 'Telegram бот не настроен. Укажите TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID.',
+        });
+    } catch (e) {
+        console.error('Send recipe telegram error:', e);
+        res.status(500).json({ success: false, message: 'Ошибка отправки' });
+    }
+});
 
 module.exports = router;
 

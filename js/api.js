@@ -173,6 +173,12 @@ const bookingsAPI = {
 
     async getMyBookings() {
         return await apiRequest('/bookings/my');
+    },
+
+    async checkAvailability(date, time) {
+        const params = new URLSearchParams({ date });
+        if (time) params.append('time', time);
+        return await apiRequest('/bookings/availability?' + params);
     }
 };
 
@@ -214,6 +220,29 @@ const aiAPI = {
             method: 'POST',
             body: JSON.stringify({ mood, preferences })
         });
+    },
+    async sendRecipeToTelegram(recipe) {
+        return await apiRequest('/ai/send-recipe-telegram', {
+            method: 'POST',
+            body: JSON.stringify({ recipe })
+        });
+    }
+};
+
+// Support API
+const supportAPI = {
+    async requestOperator(data) {
+        return await apiRequest('/support/request-operator', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+};
+
+// Bonus API
+const bonusAPI = {
+    async getHistory() {
+        return await apiRequest('/orders/bonus-history');
     }
 };
 
@@ -227,6 +256,8 @@ window.API = {
     contacts: contactsAPI,
     newsletter: newsletterAPI,
     menu: menuAPI,
-    ai: aiAPI
+    ai: aiAPI,
+    support: supportAPI,
+    bonus: bonusAPI
 };
 

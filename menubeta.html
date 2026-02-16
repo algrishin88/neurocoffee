@@ -50,12 +50,19 @@
                 </div>
             </div>
             <div class="sidebar">
+                <div class="sidebar-brand">НейроКофейня</div>
                 <ul>
-                    <li><a href="index.html">Главная</a></li>
-                    <li><a href="menubeta.html">Меню</a></li>
-                    <li><a href="services.html">О нас</a></li>
-                    <li><a href="contact.html">Контакты</a></li>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="menubeta.html"><i class="fas fa-coffee"></i> Меню</a></li>
+                    <li><a href="services.html"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
                 </ul>
+                <div class="sidebar-social">
+                    <a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="https://dzen.ru/id/65e0e96ea9bdc976e134ca84?share_to=link" target="_blank"><i class="fas fa-newspaper"></i></a>
+                    <a href="https://yandex.ru" target="_blank"><i class="fab fa-yandex"></i></a>
+                </div>
             </div>
         </div>
     </header>
@@ -139,8 +146,11 @@
                             <i class="fas fa-redo"></i> Сгенерировать ещё
                         </button>
                         <a id="shareRecipeTelegram" href="#" target="_blank" rel="noopener noreferrer" class="share-telegram-btn" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: #0088cc; color: #fff; border-radius: 8px; text-decoration: none; font-size: 0.95rem;">
-                            <i class="fab fa-telegram"></i> Отправить рецепт в Telegram
+                            <i class="fab fa-telegram"></i> Поделиться в Telegram
                         </a>
+                        <button id="sendRecipeBotBtn" class="share-telegram-btn" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: #22c55e; color: #fff; border-radius: 8px; border: none; cursor: pointer; font-size: 0.95rem;" onclick="sendRecipeViaBot()">
+                            <i class="fas fa-paper-plane"></i> Отправить бариста
+                        </button>
                     </div>
                 </div>
             </div>
@@ -471,6 +481,32 @@
                 document.getElementById('resultFullAiSection').classList.toggle('expanded');
             });
         });
+    </script>
+    <script>
+    async function sendRecipeViaBot() {
+        const btn = document.getElementById('sendRecipeBotBtn');
+        if (!window.generatedRecipe || !window.API) { alert('Сначала сгенерируйте рецепт'); return; }
+        btn.textContent = 'Отправка...';
+        btn.disabled = true;
+        try {
+            const res = await window.API.ai.sendRecipeToTelegram(window.generatedRecipe);
+            if (res.sent) {
+                btn.innerHTML = '<i class="fas fa-check"></i> Отправлено!';
+                btn.style.background = '#16a34a';
+            } else {
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Бот не настроен';
+                btn.style.background = '#f59e0b';
+            }
+        } catch (e) {
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить бариста';
+            alert(e.message || 'Ошибка отправки');
+        }
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить бариста';
+            btn.style.background = '#22c55e';
+            btn.disabled = false;
+        }, 3000);
+    }
     </script>
     <script src="js/chat-widget.js"></script>
 </body>

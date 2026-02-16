@@ -51,13 +51,20 @@
 													</div>
 												</div>
             <div class="sidebar">
+                <div class="sidebar-brand">НейроКофейня</div>
                 <ul>
-                    <li><a href="index.html">Главная</a></li>
-                    <li><a href="menubeta.html">Меню</a></li>
-                    <li><a href="services.html">О нас</a></li>
-                    <li><a href="contact.html">Контакты</a></li>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="menubeta.html"><i class="fas fa-coffee"></i> Меню</a></li>
+                    <li><a href="services.html"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
                 </ul>
-													</div>
+                <div class="sidebar-social">
+                    <a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="https://dzen.ru/id/65e0e96ea9bdc976e134ca84?share_to=link" target="_blank"><i class="fas fa-newspaper"></i></a>
+                    <a href="https://yandex.ru" target="_blank"><i class="fab fa-yandex"></i></a>
+                </div>
+            </div>
 												</div>
     </header>
 
@@ -99,34 +106,45 @@
             <form id="bookingForm">
                 <div class="form-group">
                     <label for="zone">Тачдаун-зона</label>
-                    <select id="zone" name="zone">
+                    <select id="zone" name="zone" required>
                         <option value="">Выберите зону</option>
-                        <option value="Тачдаун-зона 1">Тачдаун-зона 1</option>
-                        <option value="Тачдаун-зона 2">Тачдаун-зона 2</option>
-                        <option value="Общая зона">Общая зона</option>
+                        <option value="Тачдаун-зона 1">Тачдаун-зона 1 (до 4 чел.)</option>
+                        <option value="Тачдаун-зона 2">Тачдаун-зона 2 (до 4 чел.)</option>
+                        <option value="Общая зона">Общая зона (до 12 чел.)</option>
                     </select>
                 </div>
+                <div id="zoneAvailability" style="margin-bottom:1rem;display:none;"></div>
                 <div class="form-group">
                     <label for="guests">Количество человек</label>
                     <select id="guests" name="guests" required>
-                        <option value="">Выберите количество</option>
+                        <option value="">Выберите</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
                         <option value="4">4</option>
-														</select>
-													</div>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="date">Дата</label>
                     <input type="date" id="date" name="date" required>
-												</div>
+                </div>
                 <div class="form-group">
                     <label for="time">Время</label>
                     <input type="time" id="time" name="time" required>
-													</div>
+                </div>
+                <div class="form-group">
+                    <label for="bookingName">Ваше имя</label>
+                    <input type="text" id="bookingName" name="name" placeholder="Имя для бронирования">
+                </div>
+                <div class="form-group">
+                    <label for="bookingPhone">Телефон</label>
+                    <input type="tel" id="bookingPhone" name="phone" placeholder="+7 (999) 123-45-67">
+                </div>
                 <button type="submit" class="submit-btn">Забронировать сейчас</button>
-											</form>	
-										</div>
+            </form>
+        </div>
 
         <!-- Coffee of the Day -->
         <div class="features-section">
@@ -302,6 +320,29 @@
             });
         }
 
+        // Check zone availability on date/time change
+        async function checkZoneAvailability() {
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const infoEl = document.getElementById('zoneAvailability');
+            if (!date || !window.API) { infoEl.style.display = 'none'; return; }
+            try {
+                const params = new URLSearchParams({ date });
+                if (time) params.append('time', time);
+                const res = await fetch('/api/bookings/availability?' + params);
+                const data = await res.json();
+                if (data.success && data.zones) {
+                    infoEl.style.display = 'block';
+                    infoEl.innerHTML = data.zones.map(z => {
+                        const color = z.isAvailable ? '#22c55e' : '#ef4444';
+                        return `<span style="display:inline-block;margin-right:12px;font-size:.85rem;"><span style="color:${color};">●</span> ${z.zone}: ${z.available} мест</span>`;
+                    }).join('');
+                }
+            } catch (e) { infoEl.style.display = 'none'; }
+        }
+        document.getElementById('date').addEventListener('change', checkZoneAvailability);
+        document.getElementById('time').addEventListener('change', checkZoneAvailability);
+
         // Booking form handler
         document.getElementById('bookingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -310,33 +351,33 @@
                 guests: parseInt(formData.get('guests')),
                 date: formData.get('date'),
                 time: formData.get('time'),
-                zone: formData.get('zone') || null
+                zone: formData.get('zone') || 'Общая зона',
+                name: formData.get('name') || null,
+                phone: formData.get('phone') || null
             };
             
             try {
-                // Try API first
                 if (window.API && window.API.bookings) {
                     const response = await window.API.bookings.createBooking(booking);
                     if (response.success) {
-                        alert('Столик успешно забронирован!');
+                        if (typeof showToast === 'function') showToast('Столик успешно забронирован!', 'success');
+                        else alert('Столик успешно забронирован!');
                         this.reset();
+                        document.getElementById('zoneAvailability').style.display = 'none';
                     }
                 } else {
-                    // Fallback to localStorage
                     const bookings = JSON.parse(localStorage.getItem('neuro-cafe-bookings') || '[]');
                     const currentUser = JSON.parse(localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user') || '{}');
-                    bookings.push({
-                        ...booking,
-                        id: Date.now(),
-                        userId: currentUser.id || null
-                    });
+                    bookings.push({ ...booking, id: Date.now(), userId: currentUser.id || null });
                     localStorage.setItem('neuro-cafe-bookings', JSON.stringify(bookings));
                     alert('Столик успешно забронирован!');
                     this.reset();
                 }
             } catch (error) {
                 console.error('Booking error:', error);
-                alert('Ошибка при бронировании. Попробуйте еще раз.');
+                const msg = error.message || 'Ошибка при бронировании. Попробуйте еще раз.';
+                if (typeof showToast === 'function') showToast(msg, 'error');
+                else alert(msg);
             }
         });
 
