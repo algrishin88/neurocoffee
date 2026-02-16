@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - НейроКофейня</title>
+    <link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+    
+    <link rel="stylesheet" href="register.css">
+
+    <script rel="script" src="register-login.js"></script>
+    <script src="js/api.js"></script>
+    <link href="/snowFlakes/snow.min.css" rel="stylesheet">
+</head>
+<body>
+    <script src="/snowFlakes/Snow.js"></script>
+<script>
+	new Snow ();
+</script>
+
+<script>
+    // Укажите URL вашего API здесь
+    const API_URL = '/api
+</script>
+    <!-- Header -->
+    <header>
+        <button id="sidebarToggle">☰</button>
+        <div class="nav-container">
+            <div class="logo">НейроКофейня</div>
+            <nav class="nav-logo">
+                <ul class="nav-menu">
+                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="menubeta.html">Меню</a></li>
+                    <li><a href="services.html">О нас</a></li>
+                    <li><a href="#">Праздники</a></li>
+                    <li><a href="contact.html">Контакты</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <a href="login.html" class="btn btn-secondary">Войти</a>
+                <a href="register.html" class="btn btn-primary">Регистрация</a>
+            </div>
+            <div class="sidebar">
+            <ul>
+                <li><a href="#">Главная</a></li>
+                <li><a href="#">Меню</a></li>
+                <li><a href="#">О нас</a></li>
+                <li><a href="#">Праздники</a></li>
+                <li><a href="#">Контакты</a></li>
+            </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="register-container">
+        <!-- Register Info -->
+        <div class="register-info">
+            <h1 class="register-title">Приветствуем вас!</h1>
+            <p class="register-subtitle">Создайте аккаунт и откройте для себя мир уникальных нейро-напитков</p>
+            
+            <ul class="benefits-list">
+                <li>
+                    <i class="fas fa-magic"></i>
+                    <span>Персональные AI-рекомендации</span>
+                </li>
+                <li>
+                    <i class="fas fa-crown"></i>
+                    <span>VIP-статус и привилегии</span>
+                </li>
+                <li>
+                    <i class="fas fa-coins"></i>
+                    <span>Бонусные баллы за каждый заказ</span>
+                </li>
+                <li>
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Приоритетное бронирование столиков</span>
+                </li>
+                <li>
+                    <i class="fas fa-bell"></i>
+                    <span>Эксклюзивные уведомления о новинках</span>
+                </li>
+                <li>
+                    <i class="fas fa-users"></i>
+                    <span>Доступ к закрытому сообществу</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Register Form -->
+        <div class="register-form-container liquid-glass">
+            <h2 class="form-title">Создать аккаунт</h2>
+            
+            <!-- Message Container -->
+            <div id="message-container"></div>
+            
+            <form id="register-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">Имя</label>
+                        <input type="text" id="firstName" name="firstName" placeholder="Введите имя" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Фамилия</label>
+                        <input type="text" id="lastName" name="lastName" placeholder="Введите фамилию" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Введите ваш email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+7 (___) ___-__-__" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="birthDate">Дата рождения</label>
+                    <input type="date" id="birthDate" name="birthDate" required>
+                </div>
+                <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" name="password" placeholder="Создайте пароль" required>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="password-strength-bar"></div>
+                    </div>
+                    <div class="password-strength-text" id="password-strength-text">Введите пароль</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Подтвердите пароль</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Повторите пароль" required>
+                </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="preferences">Предпочтения в кофе</label>
+                    <select id="preferences" name="preferences" required>
+                        <option value="">Выберите предпочтения</option>
+                        <option value="espresso">Эспрессо</option>
+                        <option value="latte">Латте</option>
+                        <option value="cappuccino">Капучино</option>
+                        <option value="americano">Американо</option>
+                        <option value="mocha">Мокко</option>
+                        <option value="experimental">Экспериментальные напитки</option>
+                    </select>
+                </div>
+                
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">
+                        Я согласен с <a href="#" target="_blank">условиями использования</a> и 
+                        <a href="#" target="_blank">политикой конфиденциальности</a>
+                    </label>
+                </div>
+                
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="newsletter" name="newsletter">
+                    <label for="newsletter">
+                        Подписаться на новости и специальные предложения
+                    </label>
+                </div>
+                
+                <button type="submit" class="submit-btn">Создать аккаунт</button>
+            </form>
+            
+            <div class="divider">
+                <span>или</span>
+            </div>
+            
+            <div class="social-register">
+                <a href="#" class="social-btn">
+                    <i class="fab fa-google"></i> Google
+                </a>
+                <a href="#" class="social-btn" id="yandex-login-btn">
+                    <i class="fab fa-yandex"></i> Яндекс ID
+                </a>
+            </div>
+            
+            <div class="login-link">
+                <p>Уже есть аккаунт? <a href="login.html">Войти</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/theme-toggle.js"></script>
+    <script>
+        // Register Form Handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('register-form');
+            const messageContainer = document.getElementById('message-container');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const passwordStrengthBar = document.getElementById('password-strength-bar');
+            const passwordStrengthText = document.getElementById('password-strength-text');
+            
+            // Password strength checker
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                const strength = checkPasswordStrength(password);
+                updatePasswordStrength(strength);
+            });
+            
+            // Form submission
+            registerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(registerForm);
+                const firstName = formData.get('firstName');
+                const lastName = formData.get('lastName');
+                const email = formData.get('email');
+                const phone = formData.get('phone');
+                const birthDate = formData.get('birthDate');
+                const password = formData.get('password');
+                const confirmPassword = formData.get('confirmPassword');
+                const preferences = formData.get('preferences');
+                const terms = formData.get('terms');
+                
+                // Validation
+                if (!firstName || !lastName || !email || !password || !confirmPassword) {
+                    showMessage('Пожалуйста, заполните все обязательные поля', 'error');
+                    return;
+                }
+                
+                if (!isValidEmail(email)) {
+                    showMessage('Пожалуйста, введите корректный email', 'error');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showMessage('Пароли не совпадают', 'error');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    showMessage('Пароль должен содержать минимум 6 символов', 'error');
+                    return;
+                }
+                
+                if (!terms) {
+                    showMessage('Необходимо согласиться с условиями использования', 'error');
+                    return;
+                }
+                
+                showMessage('Регистрация выполняется...', 'success');
+                
+                // Validate phone
+                if (!isValidPhone(phone)) {
+                    showMessage('Пожалуйста, введите корректный номер телефона', 'error');
+                    return;
+                }
+
+                // Normalize phone number (remove formatting)
+                const normalizedPhone = phone.replace(/\D/g, '');
+
+                try {
+                    // Try API first
+                    if (window.API && window.API.auth) {
+                        const response = await window.API.auth.register({
+                            firstName,
+                            lastName,
+                            email,
+                            phone: normalizedPhone,
+                            birthDate,
+                            password,
+                            preferences,
+                            newsletter: formData.get('newsletter') === 'on'
+                        });
+                        
+                        if (response.success) {
+                            showMessage('Аккаунт создан успешно! Перенаправление на страницу входа...', 'success');
+                            
+                            // Redirect to login page
+                            setTimeout(() => {
+                                window.location.href = 'login.html';
+                            }, 2000);
+                        } else {
+                            showMessage(response.message || 'Ошибка при регистрации', 'error');
+                        }
+                    } else {
+                        throw new Error('API не загружен');
+                    }
+                } catch (error) {
+                    console.error('Register error:', error);
+                    showMessage(error.message || 'Ошибка при регистрации. Проверьте, что сервер запущен.', 'error');
+                }
+            });
+        });
+        
+        // Helper functions
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('message-container');
+            messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 5000);
+        }
+        
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function isValidPhone(phone) {
+            // Remove all non-digit characters for validation
+            const digitsOnly = phone.replace(/\D/g, '');
+            // Check if it's a valid Russian phone number (10 or 11 digits starting with 7 or 8)
+            return digitsOnly.length === 11 && (digitsOnly.startsWith('7') || digitsOnly.startsWith('8')) ||
+                   digitsOnly.length === 10;
+        }
+        
+        function checkPasswordStrength(password) {
+            let score = 0;
+            
+            if (password.length >= 8) score++;
+            if (/[a-z]/.test(password)) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+            
+            if (score <= 2) return 'weak';
+            if (score <= 3) return 'medium';
+            return 'strong';
+        }
+        
+        function updatePasswordStrength(strength) {
+            const strengthBar = document.getElementById('password-strength-bar');
+            const strengthText = document.getElementById('password-strength-text');
+            
+            strengthBar.className = `password-strength-bar ${strength}`;
+            
+            const strengthMessages = {
+                weak: 'Слабый пароль',
+                medium: 'Средний пароль',
+                strong: 'Сильный пароль'
+            };
+            
+            strengthText.textContent = strengthMessages[strength];
+        }
+        
+        // Phone number formatting with proper mask
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                // Remove leading 8 and replace with 7
+                if (value.startsWith('8')) {
+                    value = '7' + value.substring(1);
+                }
+                
+                // If starts with 7, format as +7 (XXX) XXX-XX-XX
+                if (value.startsWith('7') && value.length > 1) {
+                    let formatted = '+7';
+                    if (value.length > 1) {
+                        formatted += ' (' + value.substring(1, 4);
+                    }
+                    if (value.length >= 4) {
+                        formatted += ') ' + value.substring(4, 7);
+                    }
+                    if (value.length >= 7) {
+                        formatted += '-' + value.substring(7, 9);
+                    }
+                    if (value.length >= 9) {
+                        formatted += '-' + value.substring(9, 11);
+                    }
+                    e.target.value = formatted;
+                } else if (value.length > 0) {
+                    // If doesn't start with 7, add it
+                    value = '7' + value;
+                    e.target.value = '+7 (' + value.substring(1, 4) + ') ' + value.substring(4, 7) + '-' + value.substring(7, 9) + '-' + value.substring(9, 11);
+                } else {
+                    e.target.value = '';
+                }
+            });
+
+            phoneInput.addEventListener('keydown', function(e) {
+                // Allow: backspace, delete, tab, escape, enter
+                if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+                    // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                    (e.keyCode === 65 && e.ctrlKey === true) ||
+                    (e.keyCode === 67 && e.ctrlKey === true) ||
+                    (e.keyCode === 86 && e.ctrlKey === true) ||
+                    (e.keyCode === 88 && e.ctrlKey === true) ||
+                    // Allow: home, end, left, right
+                    (e.keyCode >= 35 && e.keyCode <= 39)) {
+                    return;
+                }
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+
+            phoneInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                const numbers = paste.replace(/\D/g, '');
+                if (numbers.length > 0) {
+                    phoneInput.value = '';
+                    phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    phoneInput.value = numbers;
+                    phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+        }
+        
+        // Check if user is already logged in
+        function checkAuthStatus() {
+            const currentUser = localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user');
+            if (currentUser) {
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Check auth status on page load
+        checkAuthStatus();
+    </script>
+    <script src="js/chat-widget.js"></script>
+</body>
+</html> 

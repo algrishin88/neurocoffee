@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реквизиты — НейроКофейня</title>
+    <link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+    <link rel="stylesheet" href="main-style.css">
+    <link href="/snowFlakes/snow.min.css" rel="stylesheet">
+    <script src="register-login.js"></script>
+    <script src="js/auth.js"></script>
+</head>
+<body>
+    <script src="/snowFlakes/Snow.js"></script>
+    <script>new Snow();</script>
+
+    <header>
+        <button id="sidebarToggle">☰</button>
+        <div class="nav-container">
+            <a href="index.html" class="logo">НейроКофейня</a>
+            <nav class="nav-logo">
+                <ul class="nav-menu">
+                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="menubeta.html">Меню</a></li>
+                    <li><a href="services.html">О нас</a></li>
+                    <li><a href="#">Праздники</a></li>
+                    <li><a href="contact.html">Контакты</a></li>
+                </ul>
+            </nav>
+            <div class="header-right">
+                <div class="cart-icon-container" id="cartIconContainer" style="display: none;">
+                    <button class="cart-btn" id="cartBtn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+                </div>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn btn-secondary">Войти</a>
+                    <a href="register.html" class="btn btn-primary">Регистрация</a>
+                </div>
+            </div>
+            <div class="sidebar">
+                <ul>
+                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="menubeta.html">Меню</a></li>
+                    <li><a href="services.html">О нас</a></li>
+                    <li><a href="#">Праздники</a></li>
+                    <li><a href="contact.html">Контакты</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h2>Корзина</h2>
+            <button class="close-cart" id="closeCart"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart"><i class="fas fa-shopping-cart"></i><p>Ваша корзина пуста</p></div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total"><span>Итого:</span><span class="total-price" id="totalPrice">0 ₽</span></div>
+            <button class="checkout-btn" id="checkoutBtn" disabled>Оформить заказ</button>
+        </div>
+    </div>
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <div class="main-content">
+        <div class="hero-section">
+            <h1 class="hero-title">Реквизиты</h1>
+            <p class="hero-subtitle">Банковские реквизиты для оплаты и сотрудничества</p>
+        </div>
+
+        <div class="contact-section" style="max-width: 720px; margin: 0 auto;">
+            <div class="liquid-glass" style="padding: 2rem; border-radius: 16px;">
+                <h2 class="section-title" style="margin-bottom: 1.5rem;"><i class="fas fa-university"></i> Реквизиты организации</h2>
+                <div class="requisites-list" style="display: grid; gap: 1rem; font-size: 1.05rem; line-height: 1.6;">
+                    <p><strong>Полное наименование:</strong><br>Роговицкий Тимофей Сергеевич</p>
+                    <p><strong>ИНН:</strong> 772393058418</p>
+                    <p><strong>КПП:</strong> 000000000</p>
+                    <p><strong>ОГРН:</strong> 0000000000000</p>
+                    <p><strong>Юридический адрес:</strong><br>г. Москва, ул. Арбат, д. 1</p>
+                    <p><strong>Расчётный счёт:</strong> 40702810000000000000</p>
+                    <p><strong>Банк:</strong> ПАО «ТБанк»</p>
+                    <p><strong>БИК:</strong> 044525225</p>
+                    <p><strong>Корр. счёт:</strong> 30101810400000000225</p>
+                </div>
+                <p style="margin-top: 1.5rem; opacity: 0.85; font-size: 0.95rem;">Для оплаты по счёту или переводам уточняйте актуальные реквизиты по телефону или почте.</p>
+                <p style="margin-top: 0.5rem;"><a href="contact.html" style="color: var(--accent, #c9a86c);">Контакты →</a></p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Как связаться с нами?</h3>
+                <ul>
+                    <li><a href="#"><i class="fas fa-phone"></i> +7 *** *** 05-70</a></li>
+                    <li><a href="#"><i class="fas fa-envelope"></i> TishUp@yandex.ru</a></li>
+                    <li><a href="requisites.html"><i class="fas fa-file-invoice"></i> Реквизиты</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Мы в соц сетях</h3>
+                <ul class="social-icons">
+                    <li><a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank"><i class="fab fa-telegram"></i></a></li>
+                    <li><a href="#"><i class="fab fa-discord"></i></a></li>
+                    <li><a href="https://yandex.ru" target="_blank" rel="noopener noreferrer"><i class="fab fa-yandex"></i></a></li>
+                </ul>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025</p>
+                <p>Designed by <a href="https://ssir-team.ru/" target="_blank">ssir-team</a> | <a href="https://t.me/Tisha_sir" target="_blank">Trogovitsky</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script>
+        (async function checkAuthAndUpdateUI() {
+            const token = localStorage.getItem('neuro-cafe-token') || sessionStorage.getItem('neuro-cafe-token');
+            let currentUser = null;
+            try { currentUser = JSON.parse(localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user') || 'null'); } catch (e) {}
+            if (token && !currentUser && window.API) {
+                try {
+                    const r = await window.API.auth.getCurrentUser();
+                    if (r.success && r.user) { currentUser = r.user; localStorage.setItem('neuro-cafe-current-user', JSON.stringify(currentUser)); }
+                } catch (e) {}
+            }
+            const cartIcon = document.getElementById('cartIconContainer');
+            const authBtns = document.querySelector('.auth-buttons');
+            if (currentUser && token && cartIcon) cartIcon.style.display = 'block';
+            if (currentUser && token && authBtns) {
+                authBtns.innerHTML = '<div class="user-menu"><button class="user-btn" onclick="toggleUserMenu()"><i class="fas fa-user"></i> ' + (currentUser.firstName || 'Профиль') + ' <i class="fas fa-chevron-down"></i></button><div class="user-dropdown" id="user-dropdown"><a href="profile.html"><i class="fas fa-user-circle"></i> Профиль</a><a href="#" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i> Выйти</a></div></div>';
+            }
+        })();
+        function toggleUserMenu() { const d = document.getElementById('user-dropdown'); if (d) d.classList.toggle('show'); }
+        function logout() { localStorage.removeItem('neuro-cafe-token'); localStorage.removeItem('neuro-cafe-current-user'); sessionStorage.removeItem('neuro-cafe-token'); sessionStorage.removeItem('neuro-cafe-current-user'); window.location.reload(); }
+    </script>
+    <script src="js/chat-widget.js"></script>
+</body>
+</html>

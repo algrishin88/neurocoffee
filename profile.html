@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль - НейроКофейня</title>
+    <link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+    <link rel="stylesheet" href="profile.css">
+    
+    <script rel="script" src="register-login.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <button id="sidebarToggle">☰</button>
+        <div class="nav-container">
+            <div class="logo">НейроКофейня</div>
+            <nav class="nav-logo">
+                <ul class="nav-menu">
+                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="menu.html">Меню</a></li>
+                    <li><a href="services.html">О нас</a></li>
+                    <li><a href="#">Праздники</a></li>
+                    <li><a href="contact.html">Контакты</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <a href="login.html" class="btn btn-secondary">Войти</a>
+                <a href="register.html" class="btn btn-primary">Регистрация</a>
+            </div>
+            <div class="sidebar">
+            <ul>
+                <li><a href="#">Главная</a></li>
+                <li><a href="#">Меню</a></li>
+                <li><a href="#">О нас</a></li>
+                <li><a href="#">Праздники</a></li>
+                <li><a href="#">Контакты</a></li>
+            </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1 class="profile-title">Мой Профиль</h1>
+            <p class="profile-subtitle">Управляйте своими данными и настройками</p>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Profile Sidebar -->
+            <div class="profile-sidebar">
+                <div class="profile-card liquid-glass">
+                    <div class="profile-avatar" id="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 class="profile-name" id="profile-name">Загрузка...</h3>
+                    <p class="profile-email" id="profile-email">Загрузка...</p>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="orders-count">0</div>
+                            <div class="stat-label">Заказов</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="bonus-points">0</div>
+                            <div class="stat-label">Бонусов</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <a href="orders.html" class="profile-btn">
+                            <i class="fas fa-shopping-bag"></i> Мои заказы
+                        </a>
+                        <a href="favorites.html" class="profile-btn">
+                            <i class="fas fa-heart"></i> Избранное
+                        </a>
+                        <a href="#" class="profile-btn primary" onclick="saveProfile()">
+                            <i class="fas fa-save"></i> Сохранить изменения
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="profile-content liquid-glass">
+                <div class="content-section">
+                    <h2 class="section-title">Личная информация</h2>
+                    
+                    <form id="profile-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="firstName">Имя *</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lastName">Фамилия *</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone">Телефон *</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="birthDate">Дата рождения</label>
+                                <input type="date" id="birthDate" name="birthDate">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="preferences">Предпочтения в кофе</label>
+                                <select id="preferences" name="preferences">
+                                    <option value="">Выберите предпочтения</option>
+                                    <option value="espresso">Эспрессо</option>
+                                    <option value="latte">Латте</option>
+                                    <option value="cappuccino">Капучино</option>
+                                    <option value="americano">Американо</option>
+                                    <option value="mocha">Мокко</option>
+                                    <option value="experimental">Экспериментальные напитки</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="bio">О себе</label>
+                                <textarea id="bio" name="bio" placeholder="Расскажите немного о себе..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="content-section">
+                    <h2 class="section-title">Настройки уведомлений</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="emailNotifications" name="emailNotifications">
+                                <span>Email уведомления</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="smsNotifications" name="smsNotifications">
+                                <span>SMS уведомления</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="newsletter" name="newsletter">
+                                <span>Новости и акции</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="orderUpdates" name="orderUpdates">
+                                <span>Обновления заказов</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Profile Management (API-based: GET/PATCH /auth/me)
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('neuro-cafe-token') || sessionStorage.getItem('neuro-cafe-token');
+            if (!token || !window.API) {
+                window.location.href = 'login.html';
+                return;
+            }
+            await loadProfile();
+        });
+
+        async function loadProfile() {
+            try {
+                const res = await window.API.auth.getCurrentUser();
+                const user = res && res.user ? res.user : null;
+                if (!user) return;
+
+                document.getElementById('firstName').value = user.firstName || '';
+                document.getElementById('lastName').value = user.lastName || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('birthDate').value = user.birthDate || '';
+                document.getElementById('preferences').value = user.preferences || '';
+                document.getElementById('bio').value = user.bio || '';
+
+                document.getElementById('profile-name').textContent = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Пользователь';
+                document.getElementById('profile-email').textContent = user.email || '';
+
+                const avatar = document.getElementById('profile-avatar');
+                avatar.innerHTML = `${(user.firstName || 'U').charAt(0)}${(user.lastName || '').charAt(0)}`;
+
+                document.getElementById('newsletter').checked = !!user.newsletter;
+                document.getElementById('emailNotifications').checked = user.emailNotifications !== false;
+                document.getElementById('smsNotifications').checked = !!user.smsNotifications;
+                document.getElementById('orderUpdates').checked = user.orderUpdates !== false;
+
+                document.getElementById('orders-count').textContent = user.ordersCount != null ? user.ordersCount : '—';
+                document.getElementById('bonus-points').textContent = user.bonusPoints != null ? user.bonusPoints : 0;
+            } catch (e) {
+                console.error('Load profile error:', e);
+                if (e.status === 401) {
+                    window.API.auth.logout();
+                    window.location.href = 'login.html';
+                }
+            }
+        }
+
+        function saveProfile() {
+            const saveBtn = document.querySelector('.save-btn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Сохранение...';
+
+            const formData = new FormData(document.getElementById('profile-form'));
+            const updates = {
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                birthDate: formData.get('birthDate') || null,
+                preferences: formData.get('preferences') || null,
+                bio: formData.get('bio') || null,
+                emailNotifications: document.getElementById('emailNotifications').checked,
+                smsNotifications: document.getElementById('smsNotifications').checked,
+                newsletter: document.getElementById('newsletter').checked,
+                orderUpdates: document.getElementById('orderUpdates').checked
+            };
+
+            if (!updates.firstName || !updates.lastName || !updates.email) {
+                showMessage('Пожалуйста, заполните имя, фамилию и email', 'error');
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Сохранить изменения';
+                return;
+            }
+
+            window.API.auth.updateProfile(updates)
+                .then((res) => {
+                    showMessage('Профиль успешно обновлен!', 'success');
+                    if (res && res.user) {
+                        localStorage.setItem('neuro-cafe-current-user', JSON.stringify(res.user));
+                        sessionStorage.setItem('neuro-cafe-current-user', JSON.stringify(res.user));
+                    }
+                    loadProfile();
+                })
+                .catch((error) => {
+                    showMessage(error.message || 'Ошибка сохранения', 'error');
+                })
+                .finally(() => {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Сохранить изменения';
+                });
+        }
+
+        // Phone number formatting
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                value = '+7 (' + value.substring(0, 3) + ') ' + value.substring(3, 6) + '-' + value.substring(6, 8) + '-' + value.substring(8, 10);
+            }
+            e.target.value = value;
+        });
+
+        // Checkbox label styling
+        const checkboxLabels = document.querySelectorAll('.checkbox-label');
+        checkboxLabels.forEach(label => {
+            label.style.display = 'flex';
+            label.style.alignItems = 'center';
+            label.style.gap = '0.5rem';
+            label.style.cursor = 'pointer';
+        });
+    </script>
+    <script src="js/chat-widget.js"></script>
+</body>
+</html> 

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О кофейне - НейроКофейня</title>
+    <link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+	
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+
+    <link rel="stylesheet" href="main-style.css">
+    <script rel="script" src="register-login.js"></script>
+    <script src="js/auth.js"></script>
+    <link href="/snowFlakes/snow.min.css" rel="stylesheet">
+	</head>
+	<body>
+	    <script src="/snowFlakes/Snow.js"></script>
+<script>
+	new Snow ();
+</script>
+    <!-- Header -->
+    <header>
+        <button id="sidebarToggle">☰</button>
+        <div class="nav-container">
+            <a href="index.html" class="logo">НейроКофейня</a>
+            <nav class="nav-logo">
+                <ul class="nav-menu">
+						<li><a href="index.html">Главная</a></li>
+                    <li><a href="menubeta.html">Меню</a></li>
+                    <li><a href="services.html" class="active">О нас</a></li>
+						<li><a href="#">Праздники</a></li>
+						<li><a href="contact.html">Контакты</a></li>
+                </ul>
+            </nav>
+            <div class="header-right">
+                <div class="cart-icon-container" id="cartIconContainer" style="display: none;">
+                    <button class="cart-btn" id="cartBtn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+							</button>
+						</div>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn btn-secondary">Войти</a>
+                    <a href="register.html" class="btn btn-primary">Регистрация</a>
+													</div>
+												</div>
+            <div class="sidebar">
+                <ul>
+                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="menubeta.html">Меню</a></li>
+                    <li><a href="services.html">О нас</a></li>
+                    <li><a href="#">Праздники</a></li>
+                    <li><a href="contact.html">Контакты</a></li>
+                </ul>
+													</div>
+												</div>
+    </header>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h2>Корзина</h2>
+            <button class="close-cart" id="closeCart">
+                <i class="fas fa-times"></i>
+            </button>
+									</div>
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <p>Ваша корзина пуста</p>
+								</div>
+							</div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Итого:</span>
+                <span class="total-price" id="totalPrice">0 ₽</span>
+						</div>
+            <button class="checkout-btn" id="checkoutBtn" disabled>Оформить заказ</button>
+				</div>
+			</div>
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1 class="hero-title">О кофейне</h1>
+            <p class="hero-subtitle">Узнайте больше о нашей уникальной концепции</p>
+						</div>
+						
+        <!-- Features Section -->
+        <div class="features-section">
+            <h2 class="section-title">Наши преимущества</h2>
+            <div class="features-grid">
+                <div class="feature-card liquid-glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-smile"></i>
+					</div>
+                    <h3 class="feature-title">Развлечение для детей</h3>
+                    <p class="feature-description">Детский уголок</p>
+				</div>
+                <div class="feature-card liquid-glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+			</div>
+                    <h3 class="feature-title">Креативная готовка</h3>
+                    <p class="feature-description">Приготовим то, что вы захотите любой сложности</p>
+		</div>
+                <div class="feature-card liquid-glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-truck"></i>
+				</div>
+                    <h3 class="feature-title">Доставка выпечки и горячего кофе</h3>
+                    <p class="feature-description">Можно заказать доставку бесплатно</p>
+			</div>
+                <div class="feature-card liquid-glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-coffee"></i>
+					</div>
+                    <h3 class="feature-title">Нейро-напитки</h3>
+                    <p class="feature-description">Генерируйте свой кофе дня</p>
+				</div>
+                <div class="feature-card liquid-glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+					</div>
+                    <h3 class="feature-title">Уникальность</h3>
+                    <p class="feature-description">Мы одни такие</p>
+				</div>
+                <div class="feature-card liquid-glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+					</div>
+                    <h3 class="feature-title">Нейро-клуб кофейни</h3>
+                    <p class="feature-description">Зарегистрируйтесь и попадайте в наш Нейро-клуб</p>
+				</div>
+                <div class="feature-card liquid-glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+			</div>
+                    <h3 class="feature-title"></h3>
+                    <p class="feature-description"></p>
+					</div>
+                <div class="feature-card liquid-glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+				</div>
+                    <h3 class="feature-title"></h3>
+                    <p class="feature-description"></p>
+			</div>
+		</div>
+	</div>
+
+        <!-- Quote Section -->
+        <div class="quote-section liquid-glass">
+            <p class="quote-text">Здесь будет наща история</p>
+            <p class="quote-author">— Trogovitsky</p>
+				</div>	
+
+        <div class="quote-section liquid-glass">
+            <p class="quote-text">"Где IDE встречает бариста, а дедлайны растворяются в аромате"</p>
+            <p class="quote-author">— YandexGPT</p>
+	</div>
+
+        <!-- Subscribe Section -->
+        <div class="features-section liquid-glass" style="padding: 3rem 2rem; text-align: center;">
+            <h2 class="section-title">Подпишитесь на рассылку</h2>
+            <form id="newsletterForm" class="contact-form" style="max-width: 600px; margin: 0 auto;">
+							<div class="form-group">
+                    <input type="email" name="email" id="newsletterEmail" placeholder="Ваш Email" required>
+							</div>
+                <button type="submit" class="submit-btn">Подписаться</button>
+					</form>
+				</div>
+			</div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+						<h3>Как связаться с нами?</h3>
+                <ul>
+                    <li><a href="#"><i class="fas fa-phone"></i> +7 *** *** 05-70</a></li>
+                    <li><a href="#"><i class="fas fa-envelope"></i> TishUp@yandex.ru</a></li>
+                    <li><a href="requisites.html"><i class="fas fa-file-invoice"></i> Реквизиты</a></li>
+						</ul>
+					</div>
+            <div class="footer-section">
+						<h3>Мы в соц сетях</h3>
+                <ul class="social-icons">
+                    <li><a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank"><i class="fab fa-telegram"></i></a></li>
+                    <li><a href="#"><i class="fab fa-discord"></i></a></li>
+                    <li><a href="https://yandex.ru" target="_blank" rel="noopener noreferrer"><i class="fab fa-yandex"></i></a></li>
+                </ul>
+				</div>
+            <div class="copyright">
+                <p>&copy; 2025</p>
+                <p>Designed by <a href="https://ssir-team.ru/" target="_blank">ssir-team</a> | <a href="https://t.me/Tisha_sir" target="_blank">Trogovitsky</a></p>
+			</div>
+		</div>
+	</footer>
+
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script>
+        // Check authentication and update UI
+        async function checkAuthAndUpdateUI() {
+            try {
+                const token = localStorage.getItem('neuro-cafe-token') || sessionStorage.getItem('neuro-cafe-token');
+                const userStr = localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user');
+                let currentUser = userStr ? JSON.parse(userStr) : null;
+                
+                if (token && !currentUser && window.API) {
+                    try {
+                        const response = await window.API.auth.getCurrentUser();
+                        if (response.success && response.user) {
+                            currentUser = response.user;
+                            localStorage.setItem('neuro-cafe-current-user', JSON.stringify(currentUser));
+                        }
+                    } catch (e) {
+                        console.error('Error getting user from API:', e);
+                    }
+                }
+                
+                const cartIconContainer = document.getElementById('cartIconContainer');
+                const authButtons = document.querySelector('.auth-buttons');
+                
+                if (currentUser && currentUser !== 'null' && token) {
+                    if (cartIconContainer) {
+                        cartIconContainer.style.display = 'block';
+                    }
+                    
+                    if (authButtons) {
+                        authButtons.innerHTML = `
+                            <div class="user-menu">
+                                <button class="user-btn" onclick="toggleUserMenu()">
+                                    <i class="fas fa-user"></i>
+                                    ${currentUser.firstName || 'Пользователь'}
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="user-dropdown" id="user-dropdown">
+                                    <a href="profile.html"><i class="fas fa-user-circle"></i> Профиль</a>
+                                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    if (cartIconContainer) {
+                        cartIconContainer.style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                console.error('Error checking auth:', e);
+            }
+        }
+
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('neuro-cafe-current-user');
+            localStorage.removeItem('neuro-cafe-token');
+            sessionStorage.removeItem('neuro-cafe-current-user');
+            sessionStorage.removeItem('neuro-cafe-token');
+            if (window.API && window.API.auth) {
+                window.API.auth.logout();
+            }
+            window.location.reload();
+        }
+
+        // Newsletter form handler
+        const newsletterForm = document.getElementById('newsletterForm');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const email = (document.getElementById('newsletterEmail') || this.querySelector('input[name="email"]')).value.trim();
+                if (!email) return;
+                try {
+                    if (window.API && window.API.newsletter) {
+                        const res = await window.API.newsletter.subscribe(email);
+                        if (res.success) {
+                            alert('Вы подписаны на рассылку!');
+                            this.reset();
+                        } else {
+                            alert(res.message || 'Ошибка подписки');
+                        }
+                    } else {
+                        alert('Сервис временно недоступен. Попробуйте позже.');
+                    }
+                } catch (err) {
+                    console.error('Newsletter error:', err);
+                    alert(err.message || 'Ошибка при подписке');
+                }
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuthAndUpdateUI();
+            
+            setTimeout(() => {
+                if (window.cartManager) {
+                    window.cartManager.updateCartUI();
+                }
+            }, 100);
+        });
+    </script>
+    <script src="js/chat-widget.js"></script>
+	</body>
+</html>

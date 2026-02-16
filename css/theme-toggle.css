@@ -1,0 +1,423 @@
+/* Theme Toggle Styles */
+.theme-toggle-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.theme-toggle {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.theme-toggle::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+}
+
+.theme-toggle.dark::before {
+    transform: translateX(30px);
+}
+
+.theme-toggle::after {
+    content: '☀️';
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    transform: translateY(-50%);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.theme-toggle.dark::after {
+    content: '🌙';
+    left: 38px;
+}
+
+/* Theme toggle background animation */
+.theme-toggle .toggle-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    border-radius: 30px;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle.dark .toggle-bg {
+    background: linear-gradient(45deg, #2c3e50 0%, #34495e 100%);
+}
+
+
+
+/* Theme toggle hover effects */
+.theme-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.theme-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Theme toggle label */
+.theme-toggle-label {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.theme-toggle-label:hover {
+    opacity: 1;
+}
+
+/* Dark theme styles - стандартная темная тема */
+body.dark-theme {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #ffffff;
+}
+
+body.dark-theme .liquid-glass {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .header-scrolled {
+    background: rgba(26, 26, 46, 0.95);
+}
+
+body.dark-theme .nav-menu a {
+    color: #ffffff;
+}
+
+body.dark-theme .nav-menu a:hover {
+    color: #4ecdc4;
+}
+
+body.dark-theme .nav-menu a.active {
+    color: #4ecdc4;
+}
+
+
+
+body.dark-theme .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .form-group input,
+body.dark-theme .form-group select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .feature-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .stat-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .menu-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .cart-panel {
+    background: rgba(26, 26, 46, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .faq-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .contact-info {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .social-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .team-member {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme styles - только смена фоновых изображений, фон остается темным */
+body.light-theme {
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+    color: #ffffff;
+}
+
+body.light-theme .liquid-glass {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+body.light-theme .header-scrolled {
+    background: rgba(15, 15, 35, 0.95);
+}
+
+body.light-theme .nav-menu a {
+    color: #ffffff;
+}
+
+body.light-theme .nav-menu a:hover {
+    color: #4ecdc4;
+}
+
+body.light-theme .nav-menu a.active {
+    color: #4ecdc4;
+}
+
+
+
+body.light-theme .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+body.light-theme .form-group input,
+body.light-theme .form-group select {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+body.light-theme .form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+body.light-theme .feature-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-theme .stat-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-theme .menu-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-theme .cart-panel {
+    background: rgba(15, 15, 35, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-theme .faq-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-theme .contact-info {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-theme .social-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-theme .team-member {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-theme .theme-toggle-label {
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Additional theme toggle animations */
+.theme-toggle {
+    animation: themeToggleFloat 3s ease-in-out infinite;
+}
+
+@keyframes themeToggleFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-3px); }
+}
+
+.theme-toggle:hover {
+    animation: none;
+}
+
+/* Theme toggle glow effect */
+.theme-toggle::before {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(78, 205, 196, 0.7);
+    transition: all 0.3s ease, box-shadow 0.3s ease;
+}
+
+.theme-toggle:hover::before {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 10px rgba(78, 205, 196, 0);
+}
+
+/* Mobile theme toggle styles */
+.mobile-theme-toggle {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.mobile-theme-toggle span {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Responsive design for theme toggle */
+@media (max-width: 768px) {
+    .theme-toggle-container {
+        top: 15px;
+        right: 15px;
+    }
+    
+    .theme-toggle {
+        width: 50px;
+        height: 25px;
+    }
+    
+    .theme-toggle::before {
+        width: 21px;
+        height: 21px;
+    }
+    
+    .theme-toggle.dark::before {
+        transform: translateX(25px);
+    }
+    
+    .theme-toggle::after {
+        font-size: 12px;
+        left: 6px;
+    }
+    
+    .theme-toggle.dark::after {
+        left: 32px;
+    }
+    
+    .theme-toggle-label {
+        display: none;
+    }
+    
+    .mobile-theme-toggle {
+        display: flex;
+    }
+}
+
+@media (max-width: 480px) {
+    .theme-toggle-container {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .theme-toggle {
+        width: 45px;
+        height: 22px;
+    }
+    
+    .theme-toggle::before {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .theme-toggle.dark::before {
+        transform: translateX(23px);
+    }
+    
+    .theme-toggle::after {
+        font-size: 10px;
+        left: 5px;
+    }
+    
+    .theme-toggle.dark::after {
+        left: 30px;
+    }
+}
+
+/* CSS Custom Properties for background images */
+:root {
+    --bg-image-1: url('images/img_bg_1.jpg');
+    --bg-image-3: url('images/img_bg_3.jpg');
+}
+
+/* Smooth transitions for theme switching */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background-image 0.3s ease;
+}
+
+/* Theme toggle accessibility */
+.theme-toggle:focus {
+    outline: 2px solid #4ecdc4;
+    outline-offset: 2px;
+}
+
+/* Theme toggle loading state */
+.theme-toggle.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.theme-toggle.loading::before {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Theme toggle success animation */
+.theme-toggle.success::before {
+    animation: successPulse 0.5s ease;
+}
+
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+} 

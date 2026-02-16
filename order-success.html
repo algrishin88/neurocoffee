@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ оформлен — НейроКофейня</title>
+    <link rel="stylesheet" href="main-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="main-content" style="max-width: 560px; margin: 4rem auto; padding: 2rem; text-align: center;">
+        <h1 style="margin-bottom: 1rem;">Заказ оформлен</h1>
+        <p id="statusMsg">Ожидаем оплату по СБП…</p>
+        <p id="orderId" style="margin-top: 0.5rem; opacity: 0.8;"></p>
+        <a href="index.html" class="checkout-btn" style="display: inline-block; margin-top: 1.5rem; text-decoration: none;">На главную</a>
+    </div>
+    <script src="js/api.js"></script>
+    <script>
+        (function() {
+            const params = new URLSearchParams(location.search);
+            const orderId = params.get('orderId');
+            const statusEl = document.getElementById('statusMsg');
+            const idEl = document.getElementById('orderId');
+            if (orderId) idEl.textContent = 'Заказ №' + orderId;
+            if (window.API && orderId) {
+                window.API.orders.getOrder(orderId).then(function(r) {
+                    if (r.success && r.order) {
+                        if (r.order.paymentStatus === 'paid') statusEl.textContent = 'Оплачено. Спасибо за заказ!';
+                    }
+                }).catch(function() {});
+            }
+        })();
+    </script>
+    <script src="js/chat-widget.js"></script>
+</body>
+</html>

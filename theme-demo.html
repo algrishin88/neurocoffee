@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Демо переключателя темы - НейроКофейня</title>
+    <link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .demo-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .demo-card {
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .demo-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .demo-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .demo-card p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .demo-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-item {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            color: #4ecdc4;
+        }
+
+        .feature-text h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-text p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .demo-controls {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .control-btn {
+            padding: 1rem 2rem;
+            margin: 0 0.5rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-info {
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .info-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .demo-footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #4ecdc4;
+        }
+
+        .copyright {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .demo-title {
+                font-size: 2rem;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .demo-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header liquid-glass">
+            <h1 class="demo-title">Демонстрация переключателя темы</h1>
+            <p class="demo-subtitle">Посмотрите, как работает наш красивый переключатель темы с анимациями</p>
+            <p><strong>Горячие клавиши:</strong> Ctrl/Cmd + T для переключения темы</p>
+        </div>
+
+        <div class="demo-grid">
+            <div class="demo-card liquid-glass">
+                <div class="demo-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3>Две темы</h3>
+                <p>Темная и светлая темы с плавными переходами и красивыми градиентами</p>
+            </div>
+            <div class="demo-card liquid-glass">
+                <div class="demo-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Адаптивный дизайн</h3>
+                <p>Переключатель автоматически адаптируется под размер экрана устройства</p>
+            </div>
+            <div class="demo-card liquid-glass">
+                <div class="demo-icon">
+                    <i class="fas fa-save"></i>
+                </div>
+                <h3>Сохранение настроек</h3>
+                <p>Ваш выбор темы сохраняется в браузере и восстанавливается при следующем посещении</p>
+            </div>
+        </div>
+
+        <div class="demo-controls liquid-glass">
+            <h3 style="margin-bottom: 1.5rem;">Управление темами</h3>
+            <button class="control-btn" onclick="window.themeToggle.setTheme('dark')">
+                <i class="fas fa-moon"></i> Темная тема
+            </button>
+            <button class="control-btn" onclick="window.themeToggle.setTheme('light')">
+                <i class="fas fa-sun"></i> Светлая тема
+            </button>
+            <button class="control-btn" onclick="window.themeToggle.toggleTheme()">
+                <i class="fas fa-sync"></i> Переключить
+            </button>
+        </div>
+
+        <div class="demo-features">
+            <div class="feature-item liquid-glass">
+                <div class="feature-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="feature-text">
+                    <h4>Автоопределение</h4>
+                    <p>Автоматически определяет предпочтения системы</p>
+                </div>
+            </div>
+            <div class="feature-item liquid-glass">
+                <div class="feature-icon">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+                <div class="feature-text">
+                    <h4>Звуковые эффекты</h4>
+                    <p>Приятные звуковые эффекты при переключении</p>
+                </div>
+            </div>
+            <div class="feature-item liquid-glass">
+                <div class="feature-icon">
+                    <i class="fas fa-vibrate"></i>
+                </div>
+                <div class="feature-text">
+                    <h4>Тактильная обратная связь</h4>
+                    <p>Вибрация на мобильных устройствах</p>
+                </div>
+            </div>
+            <div class="feature-item liquid-glass">
+                <div class="feature-icon">
+                    <i class="fas fa-keyboard"></i>
+                </div>
+                <div class="feature-text">
+                    <h4>Горячие клавиши</h4>
+                    <p>Быстрое переключение с клавиатуры</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-info liquid-glass">
+            <h3 style="text-align: center; margin-bottom: 2rem;">Статистика</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-number">2</div>
+                    <div class="info-label">Темы</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-number">3</div>
+                    <div class="info-label">Анимации</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-number">100%</div>
+                    <div class="info-label">Адаптивность</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-number">0.3s</div>
+                    <div class="info-label">Переход</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-footer">
+            <div class="footer-links">
+                <a href="index.html">Главная</a>
+                <a href="menu.html">Меню</a>
+                <a href="services.html">О нас</a>
+                <a href="contact.html">Контакты</a>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 НейроКофейня. Все права защищены.</p>
+                <p>Разработано <a href="https://ssir-team.ru/" target="_blank">ssir-team</a> | <a href="https://t.me/Tisha_sir" target="_blank">Trogovitsky</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/theme-toggle.js"></script>
+    <script>
+        // Дополнительные функции для демо
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const elements = document.querySelectorAll('.demo-card, .feature-item, .info-item');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = `all 0.6s ease ${index * 0.1}s`;
+                observer.observe(el);
+            });
+            
+            // Показ текущей темы
+            setTimeout(() => {
+                const currentTheme = window.themeToggle.getCurrentTheme();
+                console.log(`Текущая тема: ${currentTheme}`);
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

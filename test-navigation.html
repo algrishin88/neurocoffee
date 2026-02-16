@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест навигации - НейроКофейня</title>
+    <link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a:hover {
+            color: #4ecdc4;
+        }
+
+        .nav-menu a.active {
+            color: #4ecdc4;
+        }
+
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            margin-top: 100px;
+        }
+
+        .test-section {
+            margin-bottom: 3rem;
+        }
+
+        .test-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .test-card {
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .test-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .test-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .test-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .test-card p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+        }
+
+        .test-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-success {
+            background: #4ecdc4;
+        }
+
+        .status-warning {
+            background: #ff6b6b;
+        }
+
+        .status-info {
+            background: #45b7d1;
+        }
+
+        .test-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .test-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .test-list li:last-child {
+            border-bottom: none;
+        }
+
+        .hero {
+            min-height: 40vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-image-1) center/cover;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .hero-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .test-title {
+                font-size: 2rem;
+            }
+            
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="nav-container">
+            <div class="logo">НейроКофейня</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="menu.html">Меню</a></li>
+                    <li><a href="services.html">О нас</a></li>
+                    <li><a href="contact.html">Контакты</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <a href="login.html" class="btn btn-secondary">Войти</a>
+                <a href="register.html" class="btn btn-primary">Регистрация</a>
+            </div>
+            <div class="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Тест навигации и тем</h1>
+                <p>Проверьте работу навигации и переключения тем</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="test-container">
+        <!-- Navigation Test -->
+        <div class="test-section">
+            <h2 class="test-title">Тест навигации</h2>
+            <div class="test-grid">
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <h3>Навигационные ссылки</h3>
+                    <p>Проверьте работу всех ссылок в меню</p>
+                    <div class="test-list">
+                        <li><span class="status-indicator status-success"></span>Главная → index.html</li>
+                        <li><span class="status-indicator status-success"></span>Меню → menu.html</li>
+                        <li><span class="status-indicator status-success"></span>О нас → services.html</li>
+                        <li><span class="status-indicator status-success"></span>Контакты → contact.html</li>
+                    </div>
+                </div>
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-highlighter"></i>
+                    </div>
+                    <h3>Активное состояние</h3>
+                    <p>Текущая страница должна быть выделена</p>
+                    <div class="test-list">
+                        <li><span class="status-indicator status-info"></span>Автоматическое определение</li>
+                        <li><span class="status-indicator status-info"></span>Визуальное выделение</li>
+                        <li><span class="status-indicator status-info"></span>Подчеркивание активной ссылки</li>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Test -->
+        <div class="test-section">
+            <h2 class="test-title">Тест переключения тем</h2>
+            <div class="test-grid">
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>Переключатель темы</h3>
+                    <p>Проверьте работу переключателя в правом верхнем углу</p>
+                    <div class="test-list">
+                        <li><span class="status-indicator status-success"></span>Клик по переключателю</li>
+                        <li><span class="status-indicator status-success"></span>Горячие клавиши Ctrl/Cmd + T</li>
+                        <li><span class="status-indicator status-success"></span>Сохранение настроек</li>
+                    </div>
+                </div>
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h3>Смена фоновых изображений</h3>
+                    <p>При смене темы должны меняться фоновые изображения</p>
+                    <div class="test-list">
+                        <li><span class="status-indicator status-info"></span>img_bg_1.jpg ↔ img_bg_1_black.jpg</li>
+                        <li><span class="status-indicator status-info"></span>img_bg_3.jpg ↔ img_bg_3_black.jpg</li>
+                        <li><span class="status-indicator status-info"></span>Плавные переходы</li>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Navigation -->
+        <div class="test-section">
+            <h2 class="test-title">Быстрая навигация</h2>
+            <div class="test-grid">
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h3>Главная страница</h3>
+                    <p>Перейдите на главную страницу</p>
+                    <a href="index.html" class="test-btn">Открыть главную</a>
+                </div>
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Меню</h3>
+                    <p>Посмотрите наше меню</p>
+                    <a href="menu.html" class="test-btn">Открыть меню</a>
+                </div>
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h3>О нас</h3>
+                    <p>Узнайте больше о нас</p>
+                    <a href="services.html" class="test-btn">Открыть о нас</a>
+                </div>
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h3>Контакты</h3>
+                    <p>Свяжитесь с нами</p>
+                    <a href="contact.html" class="test-btn">Открыть контакты</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Demo -->
+        <div class="test-section">
+            <h2 class="test-title">Демонстрация тем</h2>
+            <div class="test-grid">
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <h3>Темная тема</h3>
+                    <p>Классическая темная тема</p>
+                    <button class="test-btn" onclick="window.themeToggle.setTheme('dark')">Включить темную</button>
+                </div>
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <h3>Светлая тема</h3>
+                    <p>Светлая тема с другими изображениями</p>
+                    <button class="test-btn" onclick="window.themeToggle.setTheme('light')">Включить светлую</button>
+                </div>
+                <div class="test-card liquid-glass">
+                    <div class="test-icon">
+                        <i class="fas fa-sync"></i>
+                    </div>
+                    <h3>Переключить</h3>
+                    <p>Быстрое переключение между темами</p>
+                    <button class="test-btn" onclick="window.themeToggle.toggleTheme()">Переключить тему</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Дополнительные тесты
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Тестовая страница загружена');
+            console.log('Текущая тема:', window.themeToggle.getCurrentTheme());
+            console.log('Текущая страница:', window.location.pathname);
+            
+            // Проверка навигации
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            console.log('Определенная страница:', currentPage);
+            
+            // Проверка активной ссылки
+            const activeLink = document.querySelector('.nav-menu a.active');
+            if (activeLink) {
+                console.log('Активная ссылка:', activeLink.getAttribute('href'));
+            } else {
+                console.log('Активная ссылка не найдена');
+            }
+        });
+    </script>
+</body>
+</html> 
