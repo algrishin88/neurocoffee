@@ -66,24 +66,153 @@ app.use('/api/', (req, res) => {
 // Статика (фронтенд) — для работы на Спринтхост и shared-хостинге
 app.use(express.static(path.join(__dirname), { index: ['index.html'], dotfiles: 'deny' }));
 
-// Test database connection on startup
-async function connectDatabase() {
+// Auto-initialize database schema on startup
+async function initDatabaseSchema() {
   try {
     await db.query('SELECT 1');
     console.log('✅ Подключено к PostgreSQL базе данных');
+
+    // Create tables if not exist
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "users" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "firstName" TEXT NOT NULL, "lastName" TEXT NOT NULL,
+        "email" TEXT NOT NULL UNIQUE, "password" TEXT NOT NULL,
+        "phone" TEXT, "yandex_id" TEXT UNIQUE,
+        "role" TEXT NOT NULL DEFAULT 'user', "newsletter" BOOLEAN DEFAULT FALSE,
+        "bonusPoints" INTEGER DEFAULT 0, "birthDate" DATE,
+        "preferences" TEXT, "bio" TEXT,
+        "emailNotifications" BOOLEAN DEFAULT TRUE,
+        "smsNotifications" BOOLEAN DEFAULT FALSE,
+        "orderUpdates" BOOLEAN DEFAULT TRUE,
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "carts" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "userId" TEXT NOT NULL UNIQUE REFERENCES "users"("id") ON DELETE CASCADE,
+        "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "cart_items" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "cartId" TEXT NOT NULL REFERENCES "carts"("id") ON DELETE CASCADE,
+        "itemId" INTEGER NOT NULL, "name" TEXT NOT NULL,
+        "price" DOUBLE PRECISION NOT NULL, "size" TEXT NOT NULL,
+        "image" TEXT, "quantity" INTEGER NOT NULL DEFAULT 1,
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        CONSTRAINT "cartId_itemId_size" UNIQUE ("cartId", "itemId", "size")
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "orders" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "userId" TEXT NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+        "total" DOUBLE PRECISION NOT NULL,
+        "status" TEXT NOT NULL DEFAULT 'pending',
+        "deliveryAddress" TEXT, "phone" TEXT, "notes" TEXT, "recipe" TEXT,
+        "paymentStatus" TEXT DEFAULT 'pending', "yookassaPaymentId" TEXT,
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "order_items" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "orderId" TEXT NOT NULL REFERENCES "orders"("id") ON DELETE CASCADE,
+        "itemId" INTEGER NOT NULL, "name" TEXT NOT NULL,
+        "price" DOUBLE PRECISION NOT NULL, "size" TEXT NOT NULL,
+        "image" TEXT, "quantity" INTEGER NOT NULL DEFAULT 1,
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "bookings" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "userId" TEXT REFERENCES "users"("id") ON DELETE SET NULL,
+        "guests" INTEGER NOT NULL,
+        "date" TIMESTAMP WITH TIME ZONE NOT NULL,
+        "time" TEXT NOT NULL, "zone" TEXT,
+        "status" TEXT NOT NULL DEFAULT 'pending', "notes" TEXT,
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "contacts" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "name" TEXT NOT NULL, "email" TEXT NOT NULL, "message" TEXT NOT NULL,
+        "status" TEXT NOT NULL DEFAULT 'new',
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "newsletter_subscribers" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "email" TEXT NOT NULL UNIQUE,
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "menu_items" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "itemId" INTEGER NOT NULL UNIQUE,
+        "name" TEXT NOT NULL, "description" TEXT NOT NULL,
+        "image" TEXT NOT NULL, "category" TEXT NOT NULL DEFAULT 'coffee',
+        "available" BOOLEAN NOT NULL DEFAULT TRUE,
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "menu_item_sizes" (
+        "id" TEXT PRIMARY KEY DEFAULT md5(random()::text || clock_timestamp()::text),
+        "menuItemId" TEXT NOT NULL REFERENCES "menu_items"("id") ON DELETE CASCADE,
+        "size" TEXT NOT NULL, "price" DOUBLE PRECISION NOT NULL,
+        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    console.log('✅ Схема базы данных инициализирована');
+
+    // Seed menu if empty
+    const menuCheck = await db.query('SELECT COUNT(*) FROM "menu_items"');
+    if (parseInt(menuCheck.rows[0].count) === 0) {
+      console.log('📋 Заполняем меню...');
+      const menuItems = [
+        { itemId: 1, name: 'Нейро-капучино', description: 'бодрящий капучино для старта работы', image: 'images/img_1.jpg', category: 'coffee', sizes: [{ size: '200мл', price: 89 }, { size: '350мл', price: 110 }] },
+        { itemId: 2, name: 'Квантовый раф', description: 'Почти как компьютер, только на сливках', image: 'images/img_2.jpg', category: 'coffee', sizes: [{ size: '350мл', price: 140 }, { size: '450мл', price: 200 }] },
+        { itemId: 3, name: 'Цифровой Латте', description: 'С ним точно ничего не забудите', image: 'images/img_3.jpg', category: 'coffee', sizes: [{ size: '250мл', price: 110 }, { size: '350мл', price: 150 }] },
+        { itemId: 4, name: 'Серверный американо', description: 'Крепкий, для настоящих senior', image: 'images/img_4.jpg', category: 'coffee', sizes: [{ size: '200мл', price: 110 }, { size: '300мл', price: 130 }] },
+        { itemId: 5, name: 'Ваш нейро-кофе', description: 'Сгенерируйте свой нейро-кофе дня', image: 'images/img_5.jpg', category: 'special', sizes: [{ size: '200мл-450мл', price: 80 }, { size: '200мл-450мл', price: 350 }] },
+        { itemId: 6, name: 'Матча ревью', description: 'Для тех, у кого сегодня код-ревью', image: 'images/img_6.jpg', category: 'tea', sizes: [{ size: '250мл', price: 200 }, { size: '350мл', price: 250 }] }
+      ];
+      for (const item of menuItems) {
+        const res = await db.query(
+          'INSERT INTO "menu_items" ("itemId", "name", "description", "image", "category", "available") VALUES ($1, $2, $3, $4, $5, $6) RETURNING "id"',
+          [item.itemId, item.name, item.description, item.image, item.category, true]
+        );
+        for (const s of item.sizes) {
+          await db.query('INSERT INTO "menu_item_sizes" ("menuItemId", "size", "price") VALUES ($1, $2, $3)', [res.rows[0].id, s.size, s.price]);
+        }
+      }
+      console.log('✅ Меню заполнено: 6 товаров');
+    }
   } catch (err) {
-    console.error('❌ Ошибка подключения к базе данных:', err.message);
-    console.log(
-      '💡 Убедитесь, что PostgreSQL запущен и DATABASE_URL корректен.',
-    );
+    console.error('❌ Ошибка подключения/инициализации БД:', err.message);
+    console.log('💡 Убедитесь, что PostgreSQL запущен и DATABASE_URL корректен.');
   }
 }
 
-connectDatabase();
+initDatabaseSchema();
 
 // Start server
 const PORT = process.env.PORT || 3307;
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
   console.log(`📡 API доступен по адресу: http://localhost:${PORT}/api`);
 });
