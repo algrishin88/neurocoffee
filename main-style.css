@@ -730,6 +730,31 @@ footer {
     font-size: 0.9rem;
 }
 
+.copyright p {
+    margin: 0.4rem 0;
+    line-height: 1.5;
+}
+
+.copyright a {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.copyright a:hover {
+    color: #4ecdc4;
+}
+
+.copyright-credits {
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.copyright-sep {
+    margin: 0 0.35em;
+    opacity: 0.6;
+}
+
 /* Cart Sidebar (same as menu.css) */
 .cart-overlay {
     position: fixed;

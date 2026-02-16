@@ -298,3 +298,27 @@ html, body {
   50% { opacity: .2; }
   100% { opacity: .2; }
 }
+
+/* Footer on 404 page */
+.page-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #8C8AA7;
+  background: rgba(40, 37, 76, 0.9);
+}
+.page-footer p {
+  margin: 0;
+}
+.page-footer a {
+  color: #fff;
+  text-decoration: none;
+  opacity: 0.9;
+}
+.page-footer a:hover {
+  text-decoration: underline;
+}
