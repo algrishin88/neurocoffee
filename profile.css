@@ -10,8 +10,10 @@
             color: #ffffff;
             overflow-x: hidden;
             background-repeat: no-repeat;
-            background-size: 100%;
-            background-color: rgb(62, 90, 130);
+            background-size: cover;
+            background-position: center;
+            background-color: #2d3a4f;
+            min-height: 100vh;
         }
 
         .liquid-glass {
@@ -122,7 +124,71 @@
         .auth-buttons {
             display: flex;
             gap: 1rem;
-            
+            align-items: center;
+        }
+
+        /* User dropdown (profile page uses profile.css only, so define here) */
+        .user-menu {
+            position: relative;
+        }
+        .user-btn {
+            background: linear-gradient(135deg, #ba9786, #8b7355);
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .user-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            color: #fff;
+        }
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 0.5rem 0;
+            min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .user-dropdown a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #4ecdc4;
+        }
+        .user-dropdown a i {
+            width: 16px;
+            text-align: center;
         }
 
         .btn {
@@ -165,7 +231,7 @@
             font-size: 3rem;
             font-weight: 700;
             margin-bottom: 1rem;
-            background: #fff;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.85) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -191,7 +257,7 @@
         .profile-card {
             padding: 2rem;
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .profile-avatar {
@@ -203,8 +269,14 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.02em;
+        }
+        .profile-avatar i {
             font-size: 3rem;
-            color: white;
         }
 
         .profile-name {
@@ -273,8 +345,7 @@
         }
 
         .profile-content {
-            padding: 1rem;
-
+            padding: 2rem;
         }
 
         .content-section {
@@ -313,13 +384,21 @@
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            padding: 1rem 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
             font-size: 1rem;
             transition: all 0.3s ease;
+        }
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23fff' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
         }
 
         .form-group input::placeholder,
