@@ -31,6 +31,9 @@ router.post(
       .isLength({ min: 6 })
       .withMessage('Пароль должен быть не менее 6 символов'),
     body('phone').optional().trim(),
+    body('birthDate').optional().trim(),
+    body('preferences').optional().trim(),
+    body('newsletter').optional(),
   ],
   async (req, res) => {
     try {
@@ -38,12 +41,14 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
+          message: errors.array().map((e) => e.msg).join('; '),
           errors: errors.array(),
         });
       }
 
-      const { firstName, lastName, email, password, phone } = req.body;
+      const { firstName, lastName, email, password, phone, birthDate, preferences, newsletter } = req.body;
       const normalizedEmail = email.toLowerCase();
+      const newsletterBool = newsletter === true || newsletter === 'on' || newsletter === 'true';
 
       // Check if user exists
       const existingUserResult = await db.query(
@@ -61,10 +66,21 @@ router.post(
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Create user
+      // Create user (с полями, которые есть в таблице users)
       const createResult = await db.query(
-        'INSERT INTO "users" ("firstName", "lastName", "email", "password", "phone") VALUES ($1, $2, $3, $4, $5) RETURNING "id", "firstName", "lastName", "email"',
-        [firstName, lastName, normalizedEmail, hashedPassword, phone || null],
+        `INSERT INTO "users" ("firstName", "lastName", "email", "password", "phone", "birthDate", "preferences", "newsletter")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         RETURNING "id", "firstName", "lastName", "email"`,
+        [
+          firstName,
+          lastName,
+          normalizedEmail,
+          hashedPassword,
+          phone || null,
+          birthDate || null,
+          preferences || null,
+          newsletterBool,
+        ],
       );
 
       const user = createResult.rows[0];
@@ -319,7 +335,7 @@ router.post('/qr/request', (req, res) => {
   const code = generateQrCode();
   qrCodeStore.set(code, { createdAt: Date.now() });
   const baseUrl = process.env.BASE_URL || (req.protocol + '://' + req.get('host'));
-  const qrUrl = baseUrl.replace(/\/$/, '') + '/login-qr.php?code=' + code;
+  const qrUrl = baseUrl.replace(/\/$/, '') + '/login-qr.html?code=' + code;
   res.json({
     success: true,
     code,
@@ -394,10 +410,13 @@ router.get('/yandex/login', (req, res) => {
       authUrl,
     });
   } catch (error) {
-    console.error('Yandex login error:', error);
-    res.status(500).json({
+    console.error('Yandex login error:', error.message);
+    const message = error.message && error.message.includes('не настроен')
+      ? error.message
+      : 'Ошибка при инициализации входа через Яндекс. Проверьте настройки YANDEX_CLIENT_ID, YANDEX_CLIENT_SECRET и YANDEX_REDIRECT_URI на сервере.';
+    res.status(503).json({
       success: false,
-      message: 'Ошибка при инициализации входа через Яндекс',
+      message,
       ...(process.env.NODE_ENV === 'development' && { error: error.message }),
     });
   }
@@ -596,10 +615,11 @@ router.get('/yandex/callback', async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Yandex callback GET error:', error);
+    console.error('Yandex callback GET error:', error.message);
+    const message = error.message || 'Ошибка при обработке ответа от Яндекса';
     res.status(500).json({
       success: false,
-      message: 'Ошибка при обработке ответа от Яндекса',
+      message: message.includes('Яндекс') ? message : 'Ошибка при обработке ответа от Яндекса. ' + message,
       ...(process.env.NODE_ENV === 'development' && { error: error.message }),
     });
   }

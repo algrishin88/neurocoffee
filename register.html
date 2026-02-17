@@ -193,15 +193,20 @@
                     e.preventDefault();
                     try {
                         const response = await fetch('/api/auth/yandex/login');
-                        const data = await response.json();
+                        let data = {};
+                        try { data = await response.json(); } catch (_) { data = {}; }
+                        if (!response.ok && data.message) {
+                            showMessage(data.message, 'error');
+                            return;
+                        }
                         if (data.success && data.authUrl) {
                             window.location.href = data.authUrl;
                         } else {
-                            showMessage('Ошибка инициализации входа через Яндекс', 'error');
+                            showMessage(data.message || 'Ошибка инициализации входа через Яндекс', 'error');
                         }
                     } catch (err) {
                         console.error('Yandex login error:', err);
-                        showMessage('Ошибка при подключении к Яндексу', 'error');
+                        showMessage(err.message || 'Ошибка при подключении к Яндексу. Проверьте интернет и что сайт открыт по адресу neurocup.ru.', 'error');
                     }
                 });
             }

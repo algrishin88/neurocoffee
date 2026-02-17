@@ -147,17 +147,21 @@
                 
                 try {
                     const response = await fetch('/api/auth/yandex/login');
-                    const data = await response.json();
-                    
+                    let data = {};
+                    try { data = await response.json(); } catch (_) { data = {}; }
+                    if (!response.ok && data.message) {
+                        showMessage(data.message, 'error');
+                        return;
+                    }
                     if (data.success && data.authUrl) {
                         // Перенаправить пользователя на Яндекс OAuth
                         window.location.href = data.authUrl;
                     } else {
-                        showMessage('Ошибка инициализации входа через Яндекс', 'error');
+                        showMessage(data.message || 'Ошибка инициализации входа через Яндекс', 'error');
                     }
                 } catch (error) {
                     console.error('Yandex login error:', error);
-                    showMessage('Ошибка при подключении к Яндексу', 'error');
+                    showMessage(error.message || 'Ошибка при подключении к Яндексу. Проверьте интернет и что сайт открыт по адресу neurocup.ru.', 'error');
                 }
             });
         });
