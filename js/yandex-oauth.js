@@ -24,10 +24,12 @@ async function handleYandexCallback(code) {
     const data = await response.json();
     
     if (data.success) {
-      // Сохранить токен
-      localStorage.setItem('auth_token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
+      // Сохранить токен и пользователя в тех же ключах, что и остальное приложение (profile, api.js)
+      localStorage.setItem('neuro-cafe-token', data.token);
+      localStorage.setItem('neuro-cafe-current-user', JSON.stringify(data.user));
+      sessionStorage.setItem('neuro-cafe-token', data.token);
+      sessionStorage.setItem('neuro-cafe-current-user', JSON.stringify(data.user));
+
       // Перенаправить на профиль
       window.location.href = '/profile.html';
     } else {
@@ -38,18 +40,18 @@ async function handleYandexCallback(code) {
   }
 }
 
-// 3. Получить текущего пользователя
+// 3. Получить текущего пользователя (те же ключи, что и в shared-ui / profile)
 function getCurrentUser() {
-  const userStr = localStorage.getItem('user');
+  const userStr = localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user');
   if (userStr) {
-    return JSON.parse(userStr);
+    try { return JSON.parse(userStr); } catch (_) { return null; }
   }
   return null;
 }
 
 // 4. Получить JWT токен
 function getAuthToken() {
-  return localStorage.getItem('auth_token');
+  return localStorage.getItem('neuro-cafe-token') || sessionStorage.getItem('neuro-cafe-token');
 }
 
 // 5. Выполнить API запрос с авторизацией
@@ -77,14 +79,16 @@ async function fetchWithAuth(url, options = {}) {
 
 // 6. Выйти из аккаунта
 function logout() {
-  localStorage.removeItem('auth_token');
-  localStorage.removeItem('user');
+  localStorage.removeItem('neuro-cafe-token');
+  localStorage.removeItem('neuro-cafe-current-user');
+  sessionStorage.removeItem('neuro-cafe-token');
+  sessionStorage.removeItem('neuro-cafe-current-user');
   window.location.href = '/login.html';
 }
 
 // 7. Проверить, авторизован ли пользователь
 function isAuthenticated() {
-  return !!localStorage.getItem('auth_token');
+  return !!(localStorage.getItem('neuro-cafe-token') || sessionStorage.getItem('neuro-cafe-token'));
 }
 
 // 8. Перенаправить на страницу входа если не авторизован

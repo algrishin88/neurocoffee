@@ -112,8 +112,8 @@ async function checkAuthAndUpdateUI() {
       if (cartIconContainer) cartIconContainer.style.display = 'block';
       if (authButtons) {
         authButtons.innerHTML =
-          '<div class="user-menu">' +
-            '<button class="user-btn" onclick="toggleUserMenu()">' +
+          '<div class="user-menu" id="user-menu">' +
+            '<button class="user-btn" type="button" onclick="toggleUserMenu()" aria-haspopup="true" aria-expanded="false">' +
               '<i class="fas fa-user"></i> ' +
               (currentUser.firstName || 'Пользователь') +
               ' <i class="fas fa-chevron-down"></i>' +
@@ -123,6 +123,7 @@ async function checkAuthAndUpdateUI() {
               '<a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</a>' +
             '</div>' +
           '</div>';
+        attachUserMenuHover();
       }
     } else {
       if (cartIconContainer) cartIconContainer.style.display = 'none';
@@ -134,7 +135,32 @@ async function checkAuthAndUpdateUI() {
 
 function toggleUserMenu() {
   var dropdown = document.getElementById('user-dropdown');
-  if (dropdown) dropdown.classList.toggle('show');
+  var btn = document.querySelector('.user-btn[aria-haspopup="true"]');
+  if (dropdown) {
+    dropdown.classList.toggle('show');
+    if (btn) btn.setAttribute('aria-expanded', dropdown.classList.contains('show'));
+  }
+}
+
+function attachUserMenuHover() {
+  var menu = document.getElementById('user-menu');
+  var dropdown = document.getElementById('user-dropdown');
+  if (!menu || !dropdown) return;
+  var closeTimer = null;
+  menu.addEventListener('mouseenter', function () {
+    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+    dropdown.classList.add('show');
+    var btn = menu.querySelector('.user-btn[aria-haspopup="true"]');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+  });
+  menu.addEventListener('mouseleave', function () {
+    closeTimer = setTimeout(function () {
+      dropdown.classList.remove('show');
+      var btn = menu.querySelector('.user-btn[aria-haspopup="true"]');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+      closeTimer = null;
+    }, 150);
+  });
 }
 
 function logout() {
