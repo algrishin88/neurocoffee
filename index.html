@@ -3,6 +3,11 @@
 	<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="НейроКофейня — умная кофейня с AI-рецептами, бронированием столиков и доставкой. Попробуйте уникальный нейро-кофе!">
+    <meta property="og:title" content="НейроКофейня — Кофе будущего">
+    <meta property="og:description" content="Умная кофейня с AI-генерацией кофейных рецептов, онлайн-заказом и бронированием.">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ru_RU">
     <title>Главная - НейроКофейня</title>
 	<link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
 
@@ -17,14 +22,16 @@
     <link rel="stylesheet" href="main-style.css">
             
     <script src="register-login.js"></script>
-            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<link href="/snowFlakes/snow.min.css" rel="stylesheet">
+<!-- <link href="/snowFlakes/snow.min.css" rel="stylesheet"> -->
 	</head>
 	<body>
-	    <script src="/snowFlakes/Snow.js"></script>
+	    <!-- <script src="/snowFlakes/Snow.js"></script> -->
+<!--
 <script>
-	new Snow ();
+	const month = new Date().getMonth();
+	if (month >= 10 || month <= 1) { new Snow(); }
 </script>
+-->
     <!-- Header -->
     <header>
         <button id="sidebarToggle">☰</button>
@@ -152,7 +159,7 @@
             <div class="cards-grid cards-grid-stagger">
                 <div class="card liquid-glass card-reveal" style="animation-delay: 0.1s;">
                     <div class="card-image">
-                        <a href="menubeta.html#1"><img src="images/img_1.jpg" alt="Нейро-капучино"></a>
+                        <a href="menubeta.html#1"><img src="images/img_1.jpg" alt="Нейро-капучино" loading="lazy"></a>
 									</div>
                     <div class="card-content">
                         <h3 class="card-title">Нейро-капучино</h3>
@@ -162,7 +169,7 @@
 			</div>
             <div class="card liquid-glass card-reveal" style="animation-delay: 0.2s;">
                     <div class="card-image">
-                        <a href="menubeta.html#2"><img src="images/img_2.jpg" alt="Квантовый раф"></a>
+                        <a href="menubeta.html#2"><img src="images/img_2.jpg" alt="Квантовый раф" loading="lazy"></a>
 						</div>
                     <div class="card-content">
                         <h3 class="card-title">Квантовый раф</h3>
@@ -172,7 +179,7 @@
 			</div>
                 <div class="card liquid-glass card-reveal" style="animation-delay: 0.3s;">
                     <div class="card-image">
-                        <a href="menubeta.html#3"><img src="images/img_3.jpg" alt="Цифровой Латте"></a>
+                        <a href="menubeta.html#3"><img src="images/img_3.jpg" alt="Цифровой Латте" loading="lazy"></a>
 		</div>
                     <div class="card-content">
                         <h3 class="card-title">Цифровой Латте</h3>
@@ -283,7 +290,7 @@
                 </ul>
             </div>
             <div class="copyright">
-                <p>&copy; 2025 НейроКофейня</p>
+                <p>&copy; 2024–2026 НейроКофейня</p>
                 <p class="copyright-credits">Designed by <a href="https://ssir-team.ru/" target="_blank" rel="noopener">ssir-team</a> <span class="copyright-sep">|</span> <a href="https://t.me/Tisha_sir" target="_blank" rel="noopener">Trogovitsky</a></p>
             </div>
         </div>
@@ -301,21 +308,28 @@
                 e.preventDefault();
                 const email = (document.getElementById('newsletterEmail') || this.querySelector('input[name="email"]')).value.trim();
                 if (!email) return;
+                const btn = this.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                btn.dataset.originalText = btn.textContent;
+                btn.textContent = 'Отправка...';
                 try {
                     if (window.API && window.API.newsletter) {
                         const res = await window.API.newsletter.subscribe(email);
                         if (res.success) {
-                            alert('Вы подписаны на рассылку!');
+                            showToast('Вы подписаны на рассылку!', 'success');
                             this.reset();
                         } else {
-                            alert(res.message || 'Ошибка подписки');
+                            showToast(res.message || 'Ошибка подписки', 'error');
                         }
                     } else {
-                        alert('Сервис временно недоступен. Попробуйте позже.');
+                        showToast('Сервис временно недоступен. Попробуйте позже.', 'error');
                     }
                 } catch (err) {
                     console.error('Newsletter error:', err);
-                    alert(err.message || 'Ошибка при подписке');
+                    showToast(err.message || 'Ошибка при подписке', 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = btn.dataset.originalText || 'Подписаться';
                 }
             });
         }
@@ -346,6 +360,10 @@
         // Booking form handler
         document.getElementById('bookingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.dataset.originalText = btn.textContent;
+            btn.textContent = 'Отправка...';
             const formData = new FormData(this);
             const booking = {
                 guests: parseInt(formData.get('guests')),
@@ -360,8 +378,7 @@
                 if (window.API && window.API.bookings) {
                     const response = await window.API.bookings.createBooking(booking);
                     if (response.success) {
-                        if (typeof showToast === 'function') showToast('Столик успешно забронирован!', 'success');
-                        else alert('Столик успешно забронирован!');
+                        showToast('Столик успешно забронирован!', 'success');
                         this.reset();
                         document.getElementById('zoneAvailability').style.display = 'none';
                     }
@@ -370,14 +387,16 @@
                     const currentUser = JSON.parse(localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user') || '{}');
                     bookings.push({ ...booking, id: Date.now(), userId: currentUser.id || null });
                     localStorage.setItem('neuro-cafe-bookings', JSON.stringify(bookings));
-                    alert('Столик успешно забронирован!');
+                    showToast('Столик успешно забронирован!', 'success');
                     this.reset();
                 }
             } catch (error) {
                 console.error('Booking error:', error);
                 const msg = error.message || 'Ошибка при бронировании. Попробуйте еще раз.';
-                if (typeof showToast === 'function') showToast(msg, 'error');
-                else alert(msg);
+                showToast(msg, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = btn.dataset.originalText || 'Забронировать сейчас';
             }
         });
 

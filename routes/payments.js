@@ -93,8 +93,35 @@ router.post('/create-sbp', auth, async (req, res) => {
   }
 });
 
-// Webhook YooKassa: входящие уведомления об изменении платежа
+// YooKassa webhook IP whitelist (official IPs from YooKassa docs)
+const YOOKASSA_WEBHOOK_IPS = [
+  '185.71.76.0/27',
+  '185.71.77.0/27',
+  '77.75.153.0/25',
+  '77.75.156.11',
+  '77.75.156.35',
+  '77.75.154.128/25',
+  '2a02:5180::/32',
+];
+
+function isYooKassaIp(ip) {
+  if (!ip) return false;
+  const cleanIp = ip.replace(/^::ffff:/, '');
+  // In development, allow all IPs for testing
+  if (process.env.NODE_ENV === 'development') return true;
+  // Simple check against known IPs (for subnet matching, a full CIDR library would be ideal)
+  return YOOKASSA_WEBHOOK_IPS.some(allowed => cleanIp.startsWith(allowed.split('/')[0].slice(0, -1)));
+}
+
+// Webhook YooKassa: incoming payment notifications
 router.post('/webhook', async (req, res) => {
+  // Verify webhook source IP in production
+  const clientIp = req.ip || req.connection?.remoteAddress || '';
+  if (process.env.NODE_ENV === 'production' && !isYooKassaIp(clientIp)) {
+    console.warn('Webhook: rejected request from untrusted IP:', clientIp);
+    return res.status(403).send('Forbidden');
+  }
+
   const body = req.body || {};
   const event = body.event;
   const payment = body.object;

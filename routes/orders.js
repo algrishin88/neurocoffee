@@ -193,6 +193,28 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
+// Get user bonus history (MUST be before /:id to avoid being matched as an ID)
+router.get('/bonus-history', auth, async (req, res) => {
+  try {
+    const result = await db.query(
+      'SELECT "id", "amount", "type", "description", "orderId", "createdAt" FROM "bonus_transactions" WHERE "userId" = $1 ORDER BY "createdAt" DESC LIMIT 50',
+      [req.userId],
+    );
+    const userResult = await db.query(
+      'SELECT "bonusPoints" FROM "users" WHERE "id" = $1 LIMIT 1',
+      [req.userId],
+    );
+    res.json({
+      success: true,
+      balance: userResult.rows[0]?.bonusPoints || 0,
+      transactions: result.rows,
+    });
+  } catch (error) {
+    console.error('Bonus history error:', error);
+    res.status(500).json({ success: false, message: 'Ошибка получения истории бонусов' });
+  }
+});
+
 // Get user orders
 router.get('/', auth, async (req, res) => {
   try {
@@ -268,28 +290,6 @@ router.get('/:id', auth, async (req, res) => {
       success: false,
       message: 'Ошибка при получении заказа',
     });
-  }
-});
-
-// Get user bonus history
-router.get('/bonus-history', auth, async (req, res) => {
-  try {
-    const result = await db.query(
-      'SELECT "id", "amount", "type", "description", "orderId", "createdAt" FROM "bonus_transactions" WHERE "userId" = $1 ORDER BY "createdAt" DESC LIMIT 50',
-      [req.userId],
-    );
-    const userResult = await db.query(
-      'SELECT "bonusPoints" FROM "users" WHERE "id" = $1 LIMIT 1',
-      [req.userId],
-    );
-    res.json({
-      success: true,
-      balance: userResult.rows[0]?.bonusPoints || 0,
-      transactions: result.rows,
-    });
-  } catch (error) {
-    console.error('Bonus history error:', error);
-    res.status(500).json({ success: false, message: 'Ошибка получения истории бонусов' });
   }
 });
 

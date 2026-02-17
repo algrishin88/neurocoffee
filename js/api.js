@@ -23,7 +23,6 @@ async function apiRequest(endpoint, options = {}) {
     };
 
     try {
-        console.log(`API Request: ${options.method || 'GET'} ${API_BASE_URL}${endpoint}`);
         const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
         let data;
         try {
@@ -31,7 +30,6 @@ async function apiRequest(endpoint, options = {}) {
         } catch (_) {
             data = {};
         }
-        console.log(`API Response:`, data);
 
         if (!response.ok) {
             const msg = data.message || (response.status === 429 ? 'Слишком много запросов. Подождите минуту.' : response.status === 500 ? 'Ошибка сервера. Попробуйте позже.' : `Ошибка ${response.status}`);
@@ -49,7 +47,6 @@ async function apiRequest(endpoint, options = {}) {
         }
         return data;
     } catch (error) {
-        console.error('API Error:', { endpoint, method: options.method || 'GET', error: error.message, status: error.status });
         if (error.message === 'Failed to fetch' || (error.name === 'TypeError' && !error.status)) {
             error.message = 'Сервер недоступен. Проверьте интернет и попробуйте позже.';
         }

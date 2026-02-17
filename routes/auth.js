@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const db = require('../lib/db');
@@ -139,6 +140,14 @@ router.post(
       }
 
       const user = userResult.rows[0];
+
+      // Reject login for OAuth-only accounts (they have no real password)
+      if (user.password === 'OAUTH_NO_PASSWORD') {
+        return res.status(401).json({
+          success: false,
+          message: 'Этот аккаунт использует вход через Яндекс. Используйте кнопку «Войти через Яндекс».',
+        });
+      }
 
       // Check password
       const isMatch = await bcrypt.compare(password, user.password);
@@ -401,14 +410,74 @@ router.get('/qr/status', (req, res) => {
 
 // ========== Yandex OAuth Routes ==========
 
-// Начать процесс авторизации с Яндекса
+// Shared handler for Yandex OAuth callback (deduplicates POST/GET logic)
+async function handleYandexCallback(code) {
+  const tokenResponse = await yandex.getAccessToken(code);
+  const accessToken = tokenResponse.access_token;
+
+  if (!accessToken) {
+    const err = new Error('Не удалось получить токен доступа');
+    err.statusCode = 401;
+    throw err;
+  }
+
+  const yandexUser = await yandex.getUserInfo(accessToken);
+  const yandexId = yandexUser.id;
+  const email = yandexUser.default_email || yandexUser.default_email_verified || `yandex_${yandexId}@yandex.id`;
+  const firstName = yandexUser.first_name || yandexUser.real_name || 'Пользователь';
+  const lastName = yandexUser.last_name || '';
+
+  // Use a random unguessable placeholder for OAuth accounts
+  const oauthPasswordPlaceholder = 'OAUTH_NO_PASSWORD';
+
+  let userResult = await db.query(
+    'SELECT "id", "firstName", "lastName", "email", "yandex_id", "role" FROM "users" WHERE "yandex_id" = $1 LIMIT 1',
+    [yandexId],
+  );
+
+  let user;
+
+  if (userResult.rowCount > 0) {
+    user = userResult.rows[0];
+    if (user.email !== email) {
+      await db.query('UPDATE "users" SET "email" = $1 WHERE "id" = $2', [email, user.id]);
+      user.email = email;
+    }
+  } else {
+    userResult = await db.query(
+      'SELECT "id" FROM "users" WHERE LOWER("email") = LOWER($1) LIMIT 1',
+      [email],
+    );
+
+    const actualEmail = userResult.rowCount > 0 ? `yandex_${yandexId}@yandex.id` : email;
+
+    const createResult = await db.query(
+      'INSERT INTO "users" ("firstName", "lastName", "email", "yandex_id", "password") VALUES ($1, $2, $3, $4, $5) RETURNING "id", "firstName", "lastName", "email"',
+      [firstName, lastName, actualEmail, yandexId, oauthPasswordPlaceholder],
+    );
+    user = createResult.rows[0];
+  }
+
+  const token = generateToken(user.id);
+
+  return {
+    success: true,
+    message: 'Вход через Яндекс успешен',
+    token,
+    user: {
+      id: user.id,
+      firstName: user.firstName ?? user.firstname ?? 'Пользователь',
+      lastName: user.lastName ?? user.lastname ?? '',
+      email: user.email ?? '',
+    },
+  };
+}
+
+// Start Yandex OAuth flow
 router.get('/yandex/login', (req, res) => {
   try {
     const authUrl = yandex.getAuthorizationUrl();
-    res.json({
-      success: true,
-      authUrl,
-    });
+    res.json({ success: true, authUrl });
   } catch (error) {
     console.error('Yandex login error:', error.message);
     const message = error.message && error.message.includes('не настроен')
@@ -422,103 +491,26 @@ router.get('/yandex/login', (req, res) => {
   }
 });
 
-// Callback после авторизации пользователем в Яндексе
+// POST callback (from frontend redirect.html)
 router.post('/yandex/callback', async (req, res) => {
   try {
     const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
-
     if (!code) {
-      return res.status(400).json({
-        success: false,
-        message: 'Отсутствует код авторизации',
-      });
+      return res.status(400).json({ success: false, message: 'Отсутствует код авторизации' });
     }
 
-    // Получить токен доступа от Яндекса
-    const tokenResponse = await yandex.getAccessToken(code);
-    const accessToken = tokenResponse.access_token;
-
-    if (!accessToken) {
-      return res.status(401).json({
-        success: false,
-        message: 'Не удалось получить токен доступа',
-      });
+    // Validate OAuth state parameter for CSRF protection
+    const state = typeof req.body?.state === 'string' ? req.body.state.trim() : '';
+    if (state && !yandex.validateState(state)) {
+      return res.status(403).json({ success: false, message: 'Недействительный параметр state. Попробуйте войти снова.' });
     }
 
-    // Получить информацию о пользователе (Яндекс возвращает snake_case)
-    const yandexUser = await yandex.getUserInfo(accessToken);
-    const yandexId = yandexUser.id;
-    const email = yandexUser.default_email || yandexUser.default_email_verified || `yandex_${yandexId}@yandex.id`;
-    const firstName = yandexUser.first_name || yandexUser.real_name || 'Пользователь';
-    const lastName = yandexUser.last_name || '';
-
-    // Проверить, существует ли пользователь с таким yandex_id
-    let userResult = await db.query(
-      'SELECT "id", "firstName", "lastName", "email", "yandex_id", "role" FROM "users" WHERE "yandex_id" = $1 LIMIT 1',
-      [yandexId],
-    );
-
-    let user;
-
-    if (userResult.rowCount > 0) {
-      // Пользователь существует, обновить информацию при необходимости
-      user = userResult.rows[0];
-      const currentEmail = user.email ?? user.Email ?? user.email;
-      if (currentEmail !== email) {
-        await db.query(
-          'UPDATE "users" SET "email" = $1 WHERE "id" = $2',
-          [email, user.id],
-        );
-        user.email = email;
-      }
-    } else {
-      // Проверить, существует ли пользователь с таким email
-      userResult = await db.query(
-        'SELECT "id" FROM "users" WHERE LOWER("email") = LOWER($1) LIMIT 1',
-        [email],
-      );
-
-      if (userResult.rowCount > 0) {
-        // Email уже занят, создать новый уникальный email
-        const uniqueEmail = `yandex_${yandexId}@yandex.id`;
-        
-        const createResult = await db.query(
-          'INSERT INTO "users" ("firstName", "lastName", "email", "yandex_id", "password") VALUES ($1, $2, $3, $4, $5) RETURNING "id", "firstName", "lastName", "email"',
-          [firstName, lastName, uniqueEmail, yandexId, 'OAUTH_NO_PASSWORD'],
-        );
-        user = createResult.rows[0];
-      } else {
-        // Создать нового пользователя с таким email
-        const createResult = await db.query(
-          'INSERT INTO "users" ("firstName", "lastName", "email", "yandex_id", "password") VALUES ($1, $2, $3, $4, $5) RETURNING "id", "firstName", "lastName", "email"',
-          [firstName, lastName, email, yandexId, 'OAUTH_NO_PASSWORD'],
-        );
-        user = createResult.rows[0];
-      }
-    }
-
-    // Сгенерировать JWT токен
-    const token = generateToken(user.id);
-    const u = user;
-    const resFirstName = u.firstName ?? u.firstname ?? 'Пользователь';
-    const resLastName = u.lastName ?? u.lastname ?? '';
-    const resEmail = u.email ?? u.Email ?? '';
-
-    res.json({
-      success: true,
-      message: 'Вход через Яндекс успешен',
-      token,
-      user: {
-        id: user.id,
-        firstName: resFirstName,
-        lastName: resLastName,
-        email: resEmail,
-      },
-    });
+    const result = await handleYandexCallback(code);
+    res.json(result);
   } catch (error) {
     console.error('Yandex callback error:', error.message);
     const message = error.message || 'Ошибка при обработке ответа от Яндекса';
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: message.includes('Яндекс') ? message : 'Ошибка при обработке ответа от Яндекса. ' + message,
       ...(process.env.NODE_ENV === 'development' && { error: error.message }),
@@ -526,103 +518,31 @@ router.post('/yandex/callback', async (req, res) => {
   }
 });
 
-// GET маршрут для redirect.html (после редиректа с Яндекса с ?code=...) (может быть полезно)
+// GET callback (direct redirect from Yandex with ?code=...)
 router.get('/yandex/callback', async (req, res) => {
   try {
-    const { code: codeParam, error } = req.query;
+    const { code: codeParam, error: oauthError, state } = req.query;
     const code = typeof codeParam === 'string' ? codeParam.trim() : (Array.isArray(codeParam) ? codeParam[0] : '');
 
-    if (error) {
-      return res.status(401).json({
-        success: false,
-        message: 'Авторизация отклонена пользователем',
-        error,
-      });
+    if (oauthError) {
+      return res.status(401).json({ success: false, message: 'Авторизация отклонена пользователем', error: oauthError });
     }
-
     if (!code) {
-      return res.status(400).json({
-        success: false,
-        message: 'Отсутствует код авторизации',
-      });
+      return res.status(400).json({ success: false, message: 'Отсутствует код авторизации' });
     }
 
-    // Получить токен доступа от Яндекса
-    const tokenResponse = await yandex.getAccessToken(code);
-    const accessToken = tokenResponse.access_token;
-
-    if (!accessToken) {
-      return res.status(401).json({
-        success: false,
-        message: 'Не удалось получить токен доступа',
-      });
+    // Validate OAuth state parameter for CSRF protection
+    const stateStr = typeof state === 'string' ? state.trim() : '';
+    if (stateStr && !yandex.validateState(stateStr)) {
+      return res.status(403).json({ success: false, message: 'Недействительный параметр state. Попробуйте войти снова.' });
     }
 
-    // Получить информацию о пользователе (Яндекс возвращает snake_case)
-    const yandexUser = await yandex.getUserInfo(accessToken);
-    const yandexId = yandexUser.id;
-    const email = yandexUser.default_email || yandexUser.default_email_verified || `yandex_${yandexId}@yandex.id`;
-    const firstName = yandexUser.first_name || yandexUser.real_name || 'Пользователь';
-    const lastName = yandexUser.last_name || '';
-
-    // Проверить, существует ли пользователь с таким yandex_id
-    let userResult = await db.query(
-      'SELECT "id", "firstName", "lastName", "email", "yandex_id", "role" FROM "users" WHERE "yandex_id" = $1 LIMIT 1',
-      [yandexId],
-    );
-
-    let user;
-
-    if (userResult.rowCount > 0) {
-      user = userResult.rows[0];
-    } else {
-      // Проверить, существует ли пользователь с таким email
-      userResult = await db.query(
-        'SELECT "id" FROM "users" WHERE LOWER("email") = LOWER($1) LIMIT 1',
-        [email],
-      );
-
-      if (userResult.rowCount > 0) {
-        // Email уже занят, создать новый уникальный email
-        const uniqueEmail = `yandex_${yandexId}@yandex.id`;
-        
-        const createResult = await db.query(
-          'INSERT INTO "users" ("firstName", "lastName", "email", "yandex_id", "password") VALUES ($1, $2, $3, $4, $5) RETURNING "id", "firstName", "lastName", "email"',
-          [firstName, lastName, uniqueEmail, yandexId, 'OAUTH_NO_PASSWORD'],
-        );
-        user = createResult.rows[0];
-      } else {
-        // Создать нового пользователя с таким email
-        const createResult = await db.query(
-          'INSERT INTO "users" ("firstName", "lastName", "email", "yandex_id", "password") VALUES ($1, $2, $3, $4, $5) RETURNING "id", "firstName", "lastName", "email"',
-          [firstName, lastName, email, yandexId, 'OAUTH_NO_PASSWORD'],
-        );
-        user = createResult.rows[0];
-      }
-    }
-
-    // Сгенерировать JWT токен
-    const token = generateToken(user.id);
-    const u = user;
-    const resFirstName = u.firstName ?? u.firstname ?? 'Пользователь';
-    const resLastName = u.lastName ?? u.lastname ?? '';
-    const resEmail = u.email ?? u.Email ?? '';
-
-    res.json({
-      success: true,
-      message: 'Вход через Яндекс успешен',
-      token,
-      user: {
-        id: user.id,
-        firstName: resFirstName,
-        lastName: resLastName,
-        email: resEmail,
-      },
-    });
+    const result = await handleYandexCallback(code);
+    res.json(result);
   } catch (error) {
     console.error('Yandex callback GET error:', error.message, error.response?.data || '');
     const message = error.message || 'Ошибка при обработке ответа от Яндекса';
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: message.includes('Яндекс') ? message : 'Ошибка при обработке ответа от Яндекса. ' + message,
       ...(process.env.NODE_ENV === 'development' && { error: error.message }),

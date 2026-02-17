@@ -106,7 +106,7 @@ header {
     position: absolute;
     top: -8px;
     right: -8px;
-    background: linear-gradient(45deg, #ba97869c, #a09995a9);
+    background: linear-gradient(135deg, #ba9786, #8b7355);
     color: white;
     border-radius: 50%;
     width: 24px;
@@ -181,7 +181,7 @@ header {
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #ba97869c, #a09995a9);
+    background: linear-gradient(135deg, #ba9786, #8b7355);
     color: white;
 }
 
@@ -196,7 +196,7 @@ header {
 }
 
 .user-btn {
-    background: linear-gradient(45deg, #ba97869c, #a09995a9);
+    background: linear-gradient(135deg, #ba9786, #8b7355);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -393,7 +393,7 @@ header {
 .size-price {
     font-size: 1rem;
     font-weight: 600;
-    color: #ffce65b7;
+    color: #ffce65;
 }
 
 .add-to-cart-btn {
@@ -401,7 +401,7 @@ header {
     padding: 0.75rem;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(45deg, #ba97869c, #a09995a9);
+    background: linear-gradient(135deg, #ba9786, #8b7355);
     color: white;
     font-size: 1rem;
     font-weight: 600;
@@ -582,7 +582,7 @@ header {
 
 .cart-item-price {
     font-weight: 600;
-    color: #ffce65b7;
+    color: #ffce65;
     margin-left: auto;
 }
 
@@ -620,7 +620,7 @@ header {
 }
 
 .total-price {
-    color: #ffce65b7;
+    color: #ffce65;
     font-size: 1.5rem;
 }
 
@@ -629,7 +629,7 @@ header {
     padding: 1rem;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(45deg, #ba97869c, #a09995a9);
+    background: linear-gradient(135deg, #ba9786, #8b7355);
     color: white;
     font-size: 1.1rem;
     font-weight: 600;
@@ -786,7 +786,7 @@ header {
     padding: 1rem;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(45deg, #ba97869c, #a09995a9);
+    background: linear-gradient(135deg, #ba9786, #8b7355);
     color: white;
     font-size: 1.1rem;
     font-weight: 600;
@@ -840,7 +840,7 @@ header {
 .result-content h3 {
     font-family: 'Playfair Display', serif;
     font-size: 1.8rem;
-    color: #ffce65b7;
+    color: #ffce65;
     margin-bottom: 1rem;
 }
 
@@ -881,7 +881,7 @@ header {
 }
 
 .result-price strong {
-    color: #ffce65b7;
+    color: #ffce65;
     font-size: 1.3rem;
 }
 
@@ -890,7 +890,7 @@ header {
     padding: 1rem;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(45deg, #ba97869c, #a09995a9);
+    background: linear-gradient(135deg, #ba9786, #8b7355);
     color: white;
     font-size: 1.1rem;
     font-weight: 600;

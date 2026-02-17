@@ -217,6 +217,7 @@
   </main>
 </div>
 
+<script src="js/shared-ui.js"></script>
 <script src="js/api.js"></script>
 <script>
 // ─── Admin Panel JavaScript ────────────────────────────────────
@@ -238,12 +239,12 @@ async function adminFetch(url, opts = {}) {
   });
   const data = await res.json();
   if (res.status === 401) {
-    alert(data.message || 'Войдите в аккаунт');
+    showToast(data.message || 'Войдите в аккаунт', 'error');
     window.location.href = 'login.html';
     return null;
   }
   if (res.status === 403) {
-    alert(data.message || 'Недостаточно прав. Доступ только для администраторов.');
+    showToast(data.message || 'Недостаточно прав. Доступ только для администраторов.', 'error');
     window.location.href = 'profile.html';
     return null;
   }
@@ -356,7 +357,7 @@ async function loadMenu() {
 
   document.getElementById('menuGrid').innerHTML = data.menu.map(item => `
     <div class="menu-card">
-      <div class="menu-card-img"><img src="${item.image}" alt="${item.name}"></div>
+      <div class="menu-card-img"><img src="${item.image}" alt="${item.name}" loading="lazy"></div>
       <div class="menu-card-body">
         <h4>${item.name}</h4>
         <p>${item.description}</p>
@@ -563,7 +564,7 @@ async function loadNewsletter() {
 }
 
 function exportSubscribers() {
-  if (!allSubscribers.length) { alert('Нет подписчиков'); return; }
+  if (!allSubscribers.length) { showToast('Нет подписчиков', 'warning'); return; }
   const csv = 'email,active,date\n' + allSubscribers.map(s => s.email + ',' + (s.active !== false) + ',' + new Date(s.createdAt).toISOString()).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a');
@@ -582,7 +583,7 @@ function showSendNewsletterForm() {
 async function sendNewsletter() {
   const subject = document.getElementById('nlSubject').value.trim();
   const content = document.getElementById('nlContent').value.trim();
-  if (!subject || !content) { alert('Заполните тему и содержание'); return; }
+  if (!subject || !content) { showToast('Заполните тему и содержание', 'warning'); return; }
   const resultEl = document.getElementById('nlResult');
   resultEl.style.display = 'block';
   resultEl.style.color = '#fff';

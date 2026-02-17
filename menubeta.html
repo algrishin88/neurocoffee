@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Меню НейроКофейни — капучино, раф, латте, американо и AI-сгенерированный нейро-кофе. Закажите онлайн!">
+    <meta property="og:title" content="Меню — НейроКофейня">
+    <meta property="og:description" content="Выберите напиток из нашего меню или создайте свой уникальный нейро-кофе с помощью AI.">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ru_RU">
     <title>Меню - НейроКофейня</title>
     <link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
     
@@ -17,13 +22,16 @@
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="menu.css">
     <script src="register-login.js"></script>
-    <link href="/snowFlakes/snow.min.css" rel="stylesheet">
+    <!-- <link href="/snowFlakes/snow.min.css" rel="stylesheet"> -->
 </head>
 <body>
-    <script src="/snowFlakes/Snow.js"></script>
+    <!-- <script src="/snowFlakes/Snow.js"></script> -->
+<!--
 <script>
-	new Snow ();
+	const month = new Date().getMonth();
+	if (month >= 10 || month <= 1) { new Snow(); }
 </script>
+-->
     <!-- Header -->
     <header>
         <button id="sidebarToggle">☰</button>
@@ -197,7 +205,7 @@
                 </ul>
             </div>
             <div class="copyright">
-                <p>&copy; 2025 НейроКофейня</p>
+                <p>&copy; 2024–2026 НейроКофейня</p>
                 <p class="copyright-credits">Designed by <a href="https://ssir-team.ru/" target="_blank" rel="noopener">ssir-team</a> <span class="copyright-sep">|</span> <a href="https://t.me/Tisha_sir" target="_blank" rel="noopener">Trogovitsky</a></p>
             </div>
         </div>
@@ -208,8 +216,8 @@
     <script src="js/shared-ui.js"></script>
     <script src="js/cart.js"></script>
     <script>
-        // Menu items data
-        const menuItems = [
+        // Menu items data (fallback)
+        let menuItems = [
             {
                 id: 1,
                 name: 'Нейро-капучино',
@@ -272,10 +280,30 @@
             }
         ];
 
+        async function loadMenuFromAPI() {
+            try {
+                const response = await fetch('/api/menu');
+                const data = await response.json();
+                if (data.success && data.menuItems && data.menuItems.length > 0) {
+                    menuItems = data.menuItems.map(item => ({
+                        id: item.itemId,
+                        name: item.name,
+                        description: item.description,
+                        image: item.image,
+                        sizes: item.sizes.map(s => ({ size: s.size, price: s.price })),
+                        category: item.category
+                    }));
+                }
+            } catch (e) {
+                console.warn('Failed to load menu from API, using fallback data');
+            }
+            renderMenuItems();
+        }
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
-            // Render menu items
-            renderMenuItems();
+            // Load menu from API (or use fallback) and render
+            loadMenuFromAPI();
             
             // Wait for cart manager to initialize
             setTimeout(() => {
@@ -292,7 +320,7 @@
             menuGrid.innerHTML = menuItems.map((item, i) => `
                 <div class="menu-item liquid-glass menu-item-reveal" style="animation-delay: ${0.05 * (i + 1)}s">
                     <div class="menu-item-image">
-                        <img src="${item.image}" alt="${item.name}">
+                        <img src="${item.image}" alt="${item.name}" loading="lazy">
                     </div>
                     <div class="menu-item-content">
                         <h3 class="menu-item-name">${item.name}</h3>
@@ -349,7 +377,7 @@
             const currentUser = JSON.parse(localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user') || 'null');
             
             if (!currentUser || currentUser === 'null') {
-                alert('Пожалуйста, войдите в аккаунт, чтобы сгенерировать кофе');
+                showToast('Пожалуйста, войдите в аккаунт, чтобы сгенерировать кофе', 'warning');
                 window.location.href = 'login.html';
                 return;
             }
@@ -387,7 +415,7 @@
             const preferences = document.getElementById('preferences').value.trim();
 
             if (!mood && !preferences) {
-                alert('Пожалуйста, опишите ваше настроение или предпочтения');
+                showToast('Пожалуйста, опишите ваше настроение или предпочтения', 'warning');
                 return;
             }
 
@@ -439,7 +467,7 @@
                 }
             } catch (error) {
                 console.error('Generation error:', error);
-                alert('Ошибка при генерации рецепта. ' + (error.message || 'Попробуйте еще раз.'));
+                showToast('Ошибка при генерации рецепта. ' + (error.message || 'Попробуйте еще раз.'), 'error');
                 formEl.style.display = 'block';
                 resultEl.style.display = 'none';
             } finally {
@@ -450,7 +478,7 @@
 
         function addGeneratedToCart() {
             if (!window.generatedRecipe) {
-                alert('Сначала сгенерируйте рецепт');
+                showToast('Сначала сгенерируйте рецепт', 'warning');
                 return;
             }
 
@@ -473,14 +501,14 @@
             const currentUser = JSON.parse(localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user') || 'null');
             
             if (!currentUser || currentUser === 'null') {
-                alert('Пожалуйста, войдите в аккаунт, чтобы добавить товар в корзину');
+                showToast('Пожалуйста, войдите в аккаунт, чтобы добавить товар в корзину', 'warning');
                 window.location.href = 'login.html';
                 return;
             }
 
             const selectedSize = getSelectedSize(itemId);
             if (!selectedSize) {
-                alert('Пожалуйста, выберите размер');
+                showToast('Пожалуйста, выберите размер', 'warning');
                 return;
             }
 
@@ -511,7 +539,7 @@
     <script>
     async function sendRecipeViaBot() {
         const btn = document.getElementById('sendRecipeBotBtn');
-        if (!window.generatedRecipe || !window.API) { alert('Сначала сгенерируйте рецепт'); return; }
+        if (!window.generatedRecipe || !window.API) { showToast('Сначала сгенерируйте рецепт', 'warning'); return; }
         btn.textContent = 'Отправка...';
         btn.disabled = true;
         try {
@@ -525,7 +553,7 @@
             }
         } catch (e) {
             btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить бариста';
-            alert(e.message || 'Ошибка отправки');
+            showToast(e.message || 'Ошибка отправки', 'error');
         }
         setTimeout(() => {
             btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить бариста';

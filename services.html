@@ -15,13 +15,16 @@
 
     <link rel="stylesheet" href="main-style.css">
     <script src="register-login.js"></script>
-    <link href="/snowFlakes/snow.min.css" rel="stylesheet">
+    <!-- <link href="/snowFlakes/snow.min.css" rel="stylesheet"> -->
 	</head>
 	<body>
-	    <script src="/snowFlakes/Snow.js"></script>
+	    <!-- <script src="/snowFlakes/Snow.js"></script> -->
+<!--
 <script>
-	new Snow ();
+	const month = new Date().getMonth();
+	if (month >= 10 || month <= 1) { new Snow(); }
 </script>
+-->
     <!-- Header -->
     <header>
         <button id="sidebarToggle">☰</button>
@@ -203,7 +206,7 @@
                 </ul>
             </div>
             <div class="copyright">
-                <p>&copy; 2025 НейроКофейня</p>
+                <p>&copy; 2024–2026 НейроКофейня</p>
                 <p class="copyright-credits">Designed by <a href="https://ssir-team.ru/" target="_blank" rel="noopener">ssir-team</a> <span class="copyright-sep">|</span> <a href="https://t.me/Tisha_sir" target="_blank" rel="noopener">Trogovitsky</a></p>
             </div>
         </div>
@@ -225,17 +228,17 @@
                     if (window.API && window.API.newsletter) {
                         const res = await window.API.newsletter.subscribe(email);
                         if (res.success) {
-                            alert('Вы подписаны на рассылку!');
+                            showToast('Вы подписаны на рассылку!', 'success');
                             this.reset();
                         } else {
-                            alert(res.message || 'Ошибка подписки');
+                            showToast(res.message || 'Ошибка подписки', 'error');
                         }
                     } else {
-                        alert('Сервис временно недоступен. Попробуйте позже.');
+                        showToast('Сервис временно недоступен. Попробуйте позже.', 'error');
                     }
                 } catch (err) {
                     console.error('Newsletter error:', err);
-                    alert(err.message || 'Ошибка при подписке');
+                    showToast(err.message || 'Ошибка при подписке', 'error');
                 }
             });
         }

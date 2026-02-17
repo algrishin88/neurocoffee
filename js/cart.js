@@ -87,7 +87,7 @@ class CartManager {
     async addItem(item) {
         const currentUser = this.getCurrentUser();
         if (!currentUser) {
-            alert('Пожалуйста, войдите в аккаунт, чтобы добавить товар в корзину');
+            showToast('Пожалуйста, войдите в аккаунт, чтобы добавить товар в корзину', 'warning');
             window.location.href = 'login.html';
             return;
         }
@@ -501,13 +501,13 @@ class CartManager {
     // Checkout
     async checkout() {
         if (this.cart.length === 0) {
-            alert('Корзина пуста');
+            showToast('Корзина пуста', 'warning');
             return;
         }
 
         const currentUser = this.getCurrentUser();
         if (!currentUser) {
-            alert('Пожалуйста, войдите в аккаунт');
+            showToast('Пожалуйста, войдите в аккаунт', 'warning');
             window.location.href = 'login.html';
             return;
         }
@@ -551,7 +551,7 @@ class CartManager {
                 }
                 
                 if (this.cart.length === 0) {
-                    alert('Корзина пуста. Добавьте товары в корзину.');
+                    showToast('Корзина пуста. Добавьте товары в корзину.', 'warning');
                     return;
                 }
 
@@ -611,7 +611,7 @@ class CartManager {
                 window.location.href = payRes.paymentUrl;
             } catch (error) {
                 console.error('Error creating order:', error);
-                alert(error.message || 'Ошибка при оформлении заказа. Попробуйте еще раз.');
+                showToast(error.message || 'Ошибка при оформлении заказа. Попробуйте еще раз.', 'error');
                 if (error.response) console.error('API Error Response:', error.response);
             }
         } else {
@@ -627,7 +627,7 @@ class CartManager {
             orders.push(order);
             localStorage.setItem('neuro-cafe-orders', JSON.stringify(orders));
             this.clearCart();
-            alert(`Заказ оформлен! Номер заказа: #${order.id}\nСумма: ${order.total} ₽`);
+            showToast(`Заказ оформлен! Номер заказа: #${order.id} — Сумма: ${order.total} ₽`, 'success');
             this.toggleCart();
         }
     }

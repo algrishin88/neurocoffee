@@ -137,7 +137,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, #ba97869c, #a09995a9);
+            background: linear-gradient(135deg, #ba9786, #8b7355);
             color: white;
         }
 
@@ -198,7 +198,7 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #ba97869c, #a09995a9);
+            background: linear-gradient(135deg, #ba9786, #8b7355);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -263,7 +263,7 @@
         }
 
         .profile-btn.primary {
-            background: linear-gradient(45deg, #ba97869c, #a09995a9);
+            background: linear-gradient(135deg, #ba9786, #8b7355);
             border-color: transparent;
         }
 
@@ -341,7 +341,7 @@
         }
 
         .save-btn {
-            background: linear-gradient(45deg, #ba97869c, #a09995a9);
+            background: linear-gradient(135deg, #ba9786, #8b7355);
             color: white;
             border: none;
             padding: 1rem 2rem;

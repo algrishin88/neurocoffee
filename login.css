@@ -140,7 +140,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, #ba97869c, #a09995a9);
+            background: linear-gradient(135deg, #ba9786, #8b7355);
             color: white;
         }
 
@@ -270,7 +270,7 @@
         }
 
         .forgot-password {
-            color: #ffce65b7;
+            color: #ffce65;
             text-decoration: none;
             font-size: 0.9rem;
         }
@@ -284,7 +284,7 @@
             padding: 1rem;
             border: none;
             border-radius: 10px;
-            background: linear-gradient(45deg, #ba97869c, #a09995a9);
+            background: linear-gradient(135deg, #ba9786, #8b7355);
             color: white;
             font-size: 1.1rem;
             font-weight: 600;
@@ -348,7 +348,7 @@
         }
 
         .register-link a {
-            color: #ffce65b7;
+            color: #ffce65;
             text-decoration: none;
             font-weight: 500;
         }

@@ -15,13 +15,16 @@
 
     <link rel="stylesheet" href="main-style.css">
     <script src="register-login.js"></script>
-    <link href="/snowFlakes/snow.min.css" rel="stylesheet">
+    <!-- <link href="/snowFlakes/snow.min.css" rel="stylesheet"> -->
 	</head>
 	<body>
-	    <script src="/snowFlakes/Snow.js"></script>
+	    <!-- <script src="/snowFlakes/Snow.js"></script> -->
+<!--
 <script>
-	new Snow ();
+	const month = new Date().getMonth();
+	if (month >= 10 || month <= 1) { new Snow(); }
 </script>
+-->
     <!-- Header -->
     <header>
         <button id="sidebarToggle">☰</button>
@@ -167,7 +170,7 @@
                 </ul>
             </div>
             <div class="copyright">
-                <p>&copy; 2025 НейроКофейня</p>
+                <p>&copy; 2024–2026 НейроКофейня</p>
                 <p class="copyright-credits">Designed by <a href="https://ssir-team.ru/" target="_blank" rel="noopener">ssir-team</a> <span class="copyright-sep">|</span> <a href="https://t.me/Tisha_sir" target="_blank" rel="noopener">Trogovitsky</a></p>
             </div>
         </div>
@@ -181,6 +184,10 @@
         // Contact form handler
         document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.dataset.originalText = btn.textContent;
+            btn.textContent = 'Отправка...';
             const formData = new FormData(this);
             const contact = {
                 name: formData.get('name'),
@@ -193,7 +200,7 @@
                 if (window.API && window.API.contacts) {
                     const response = await window.API.contacts.sendMessage(contact);
                     if (response.success) {
-                        alert('Сообщение отправлено! Мы свяжемся с вами в ближайшее время.');
+                        showToast('Сообщение отправлено! Мы свяжемся с вами в ближайшее время.', 'success');
                         this.reset();
                     }
                 } else {
@@ -205,12 +212,15 @@
                         date: new Date().toISOString()
                     });
                     localStorage.setItem('neuro-cafe-messages', JSON.stringify(messages));
-                    alert('Сообщение отправлено! Мы свяжемся с вами в ближайшее время.');
+                    showToast('Сообщение отправлено! Мы свяжемся с вами в ближайшее время.', 'success');
                     this.reset();
                 }
             } catch (error) {
                 console.error('Contact error:', error);
-                alert('Ошибка при отправке сообщения. Попробуйте еще раз.');
+                showToast('Ошибка при отправке сообщения. Попробуйте еще раз.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = btn.dataset.originalText || 'Отправить';
             }
         });
 
