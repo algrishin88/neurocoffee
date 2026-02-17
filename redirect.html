@@ -112,60 +112,52 @@
             return;
         }
 
-        // Отправить код на бэкенд
-        const API_BASE = window.location.origin;
+        // Отправить код на бэкенд (код кодируем — в нём могут быть спецсимволы)
+        const codeEncoded = encodeURIComponent(code);
+        const url = '/api/auth/yandex/callback?code=' + codeEncoded;
 
-        fetch(`${API_BASE}/api/auth/yandex/callback?code=${code}`, {
+        fetch(url, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Accept': 'application/json' },
         })
-            .then(response => response.json())
-            .then(data => {
+            .then(function(response) {
+                return response.text().then(function(text) {
+                    let data;
+                    try {
+                        data = text ? JSON.parse(text) : {};
+                    } catch (_) {
+                        data = { success: false, message: response.ok ? 'Неверный ответ сервера' : 'Сервер вернул ошибку ' + response.status };
+                    }
+                    return { response: response, data: data };
+                });
+            })
+            .then(function(result) {
+                var response = result.response;
+                var data = result.data;
                 document.getElementById('spinner').style.display = 'none';
 
-                if (data.success) {
-                    // Успешный вход
-                    const successDiv = document.getElementById('success');
+                if (data.success && data.token && data.user) {
+                    var successDiv = document.getElementById('success');
                     successDiv.style.display = 'block';
-                    successDiv.innerHTML = `
-                        <strong>✓ Вход выполнен успешно!</strong><br>
-                        Добро пожаловать, ${data.user.firstName}!
-                    `;
+                    successDiv.innerHTML = '<strong>✓ Вход выполнен успешно!</strong><br>Добро пожаловать, ' + (data.user.firstName || data.user.first_name || '') + '!';
                     document.getElementById('message').style.display = 'none';
-
-                    // Сохранить токен в localStorage
                     localStorage.setItem('neuro-cafe-token', data.token);
                     localStorage.setItem('neuro-cafe-current-user', JSON.stringify(data.user));
-
-                    // Перенаправить на профиль через 2 секунды
-                    setTimeout(() => {
-                        window.location.href = '/profile.html';
-                    }, 2000);
+                    setTimeout(function() { window.location.href = '/profile.html'; }, 2000);
                 } else {
-                    // Ошибка на бэкенде
-                    const errorDiv = document.getElementById('error');
+                    var errorDiv = document.getElementById('error');
                     errorDiv.style.display = 'block';
-                    errorDiv.innerHTML = `
-                        <strong>Ошибка при входе:</strong><br>
-                        ${data.message || 'Неизвестная ошибка'}
-                        <br><a href="/">← Вернуться на главную</a>
-                    `;
+                    errorDiv.innerHTML = '<strong>Ошибка при входе:</strong><br>' + (data.message || 'Неизвестная ошибка') + '<br><a href="/">← Вернуться на главную</a>';
                     document.getElementById('message').style.display = 'none';
                 }
             })
-            .catch(err => {
+            .catch(function(err) {
                 document.getElementById('spinner').style.display = 'none';
                 document.getElementById('message').style.display = 'none';
-                const errorDiv = document.getElementById('error');
+                var errorDiv = document.getElementById('error');
                 errorDiv.style.display = 'block';
-                const msg = (err.message === 'Failed to fetch' || !err.message) ? 'Сервер недоступен. Проверьте интернет и попробуйте снова.' : err.message;
-                errorDiv.innerHTML = `
-                    <strong>Ошибка:</strong><br>
-                    ${msg}
-                    <br><a href="/">← Вернуться на главную</a>
-                `;
+                var msg = (err.message === 'Failed to fetch' || !err.message) ? 'Сервер недоступен. Проверьте интернет и попробуйте снова.' : err.message;
+                errorDiv.innerHTML = '<strong>Ошибка:</strong><br>' + msg + '<br><a href="/">← Вернуться на главную</a>';
                 console.error('Error:', err);
             });
     </script>

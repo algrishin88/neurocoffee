@@ -8,7 +8,7 @@ const router = express.Router();
 const YOOKASSA_API = 'https://api.yookassa.ru/v3/payments';
 const SHOP_ID = process.env.YOOKASSA_SHOP_ID;
 const SECRET_KEY = process.env.YOOKASSA_SECRET_KEY;
-const BASE_URL = process.env.BASE_URL || 'https://neurocoffee.ssir-team.ru';
+const BASE_URL = process.env.BASE_URL || 'https://neurocup.ru';
 
 function yooAuth() {
   const key = Buffer.from(`${SHOP_ID}:${SECRET_KEY}`).toString('base64');

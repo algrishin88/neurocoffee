@@ -122,6 +122,11 @@ app.use('/api/', (req, res) => {
 // Статика (фронтенд) — для работы на Спринтхост и shared-хостинге
 app.use(express.static(path.join(__dirname), { index: ['index.html'], dotfiles: 'deny' }));
 
+// Fallback 404 — для несуществующих страниц показываем 404.html
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, '404.html'));
+});
+
 // Auto-initialize database schema on startup
 async function initDatabaseSchema() {
   try {

@@ -425,7 +425,7 @@ router.get('/yandex/login', (req, res) => {
 // Callback после авторизации пользователем в Яндексе
 router.post('/yandex/callback', async (req, res) => {
   try {
-    const { code } = req.body;
+    const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
 
     if (!code) {
       return res.status(400).json({
@@ -445,13 +445,12 @@ router.post('/yandex/callback', async (req, res) => {
       });
     }
 
-    // Получить информацию о пользователе
+    // Получить информацию о пользователе (Яндекс возвращает snake_case)
     const yandexUser = await yandex.getUserInfo(accessToken);
-
     const yandexId = yandexUser.id;
-    const email = yandexUser.default_email || `yandex_${yandexId}@yandex.id`;
-    const firstName = yandexUser.first_name || 'Пользователь';
-    const lastName = yandexUser.last_name || 'Яндекса';
+    const email = yandexUser.default_email || yandexUser.default_email_verified || `yandex_${yandexId}@yandex.id`;
+    const firstName = yandexUser.first_name || yandexUser.real_name || 'Пользователь';
+    const lastName = yandexUser.last_name || '';
 
     // Проверить, существует ли пользователь с таким yandex_id
     let userResult = await db.query(
@@ -464,9 +463,8 @@ router.post('/yandex/callback', async (req, res) => {
     if (userResult.rowCount > 0) {
       // Пользователь существует, обновить информацию при необходимости
       user = userResult.rows[0];
-      
-      // Обновить email, если изменился
-      if (user.email !== email) {
+      const currentEmail = user.email ?? user.Email ?? user.email;
+      if (currentEmail !== email) {
         await db.query(
           'UPDATE "users" SET "email" = $1 WHERE "id" = $2',
           [email, user.id],
@@ -501,6 +499,10 @@ router.post('/yandex/callback', async (req, res) => {
 
     // Сгенерировать JWT токен
     const token = generateToken(user.id);
+    const u = user;
+    const resFirstName = u.firstName ?? u.firstname ?? 'Пользователь';
+    const resLastName = u.lastName ?? u.lastname ?? '';
+    const resEmail = u.email ?? u.Email ?? '';
 
     res.json({
       success: true,
@@ -508,25 +510,27 @@ router.post('/yandex/callback', async (req, res) => {
       token,
       user: {
         id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
+        firstName: resFirstName,
+        lastName: resLastName,
+        email: resEmail,
       },
     });
   } catch (error) {
-    console.error('Yandex callback error:', error);
+    console.error('Yandex callback error:', error.message);
+    const message = error.message || 'Ошибка при обработке ответа от Яндекса';
     res.status(500).json({
       success: false,
-      message: 'Ошибка при обработке ответа от Яндекса',
+      message: message.includes('Яндекс') ? message : 'Ошибка при обработке ответа от Яндекса. ' + message,
       ...(process.env.NODE_ENV === 'development' && { error: error.message }),
     });
   }
 });
 
-// Альтернативный способ - GET маршрут для redirect.html (может быть полезно)
+// GET маршрут для redirect.html (после редиректа с Яндекса с ?code=...) (может быть полезно)
 router.get('/yandex/callback', async (req, res) => {
   try {
-    const { code, error } = req.query;
+    const { code: codeParam, error } = req.query;
+    const code = typeof codeParam === 'string' ? codeParam.trim() : (Array.isArray(codeParam) ? codeParam[0] : '');
 
     if (error) {
       return res.status(401).json({
@@ -554,13 +558,12 @@ router.get('/yandex/callback', async (req, res) => {
       });
     }
 
-    // Получить информацию о пользователе
+    // Получить информацию о пользователе (Яндекс возвращает snake_case)
     const yandexUser = await yandex.getUserInfo(accessToken);
-
     const yandexId = yandexUser.id;
-    const email = yandexUser.default_email || `yandex_${yandexId}@yandex.id`;
-    const firstName = yandexUser.first_name || 'Пользователь';
-    const lastName = yandexUser.last_name || 'Яндекса';
+    const email = yandexUser.default_email || yandexUser.default_email_verified || `yandex_${yandexId}@yandex.id`;
+    const firstName = yandexUser.first_name || yandexUser.real_name || 'Пользователь';
+    const lastName = yandexUser.last_name || '';
 
     // Проверить, существует ли пользователь с таким yandex_id
     let userResult = await db.query(
@@ -571,7 +574,6 @@ router.get('/yandex/callback', async (req, res) => {
     let user;
 
     if (userResult.rowCount > 0) {
-      // Пользователь существует, обновить информацию при необходимости
       user = userResult.rows[0];
     } else {
       // Проверить, существует ли пользователь с таким email
@@ -601,21 +603,24 @@ router.get('/yandex/callback', async (req, res) => {
 
     // Сгенерировать JWT токен
     const token = generateToken(user.id);
+    const u = user;
+    const resFirstName = u.firstName ?? u.firstname ?? 'Пользователь';
+    const resLastName = u.lastName ?? u.lastname ?? '';
+    const resEmail = u.email ?? u.Email ?? '';
 
-    // Отправить данные обратно фронтенду (через redirect или JSON)
     res.json({
       success: true,
       message: 'Вход через Яндекс успешен',
       token,
       user: {
         id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
+        firstName: resFirstName,
+        lastName: resLastName,
+        email: resEmail,
       },
     });
   } catch (error) {
-    console.error('Yandex callback GET error:', error.message);
+    console.error('Yandex callback GET error:', error.message, error.response?.data || '');
     const message = error.message || 'Ошибка при обработке ответа от Яндекса';
     res.status(500).json({
       success: false,
