@@ -76,7 +76,7 @@
                     
                     <div class="profile-actions">
                         <a href="menubeta.html" class="profile-btn"><i class="fas fa-coffee"></i> Меню</a>
-                        <a href="#" class="profile-btn" onclick="event.preventDefault(); logout()"><i class="fas fa-sign-out-alt"></i> Выход</a>
+                        <a href="index.html" class="profile-btn" id="profile-logout-btn"><i class="fas fa-sign-out-alt"></i> Выход</a>
                     </div>
                 </div>
 
@@ -398,9 +398,17 @@
         }
 
         function logout() {
-            if (window.API) window.API.auth.logout();
+            localStorage.removeItem('neuro-cafe-current-user');
+            localStorage.removeItem('neuro-cafe-token');
+            sessionStorage.removeItem('neuro-cafe-current-user');
+            sessionStorage.removeItem('neuro-cafe-token');
+            if (window.API && window.API.auth) window.API.auth.logout();
             window.location.href = 'index.html';
         }
+        document.getElementById('profile-logout-btn')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
 
         // Phone formatting
         document.getElementById('phone')?.addEventListener('input', function(e) {

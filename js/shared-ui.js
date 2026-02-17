@@ -120,7 +120,7 @@ async function checkAuthAndUpdateUI() {
             '</button>' +
             '<div class="user-dropdown" id="user-dropdown">' +
               '<a href="profile.html"><i class="fas fa-user-circle"></i> Профиль</a>' +
-              '<a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</a>' +
+              '<a href="#" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i> Выйти</a>' +
             '</div>' +
           '</div>';
         attachUserMenuHover();
