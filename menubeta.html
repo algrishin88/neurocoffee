@@ -173,6 +173,23 @@
     </div>
     <div class="coffee-modal-overlay" id="coffeeModalOverlay"></div>
 
+    <!-- Quick View Modal -->
+    <div id="quickViewModal" class="quick-view-modal" style="display:none;">
+        <div class="quick-view-card liquid-glass">
+            <button class="quick-view-close" id="quickViewClose">×</button>
+            <img id="qvImage" src="" alt="">
+            <div class="quick-view-info">
+                <h3 id="qvName"></h3>
+                <p id="qvDescription"></p>
+                <div class="quick-view-sizes" id="qvSizes"></div>
+                <div style="margin-top:0.8rem; display:flex; gap:0.6rem; align-items:center;">
+                    <button id="qvAddToCart" class="add-to-cart-btn"><i class="fas fa-plus"></i> В корзину</button>
+                    <button id="qvGenerate" class="generate-coffee-btn" style="display:none;"><i class="fas fa-magic"></i> Сгенерировать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Menu Container -->
     <div class="menu-container">
         <div class="menu-header animated fadeIn" style="animation-duration: 0.8s;">
@@ -216,68 +233,26 @@
     <script src="js/shared-ui.js"></script>
     <script src="js/cart.js"></script>
     <script>
-        // Menu items data (fallback)
+        // Menu items data (fallback) with categories
         let menuItems = [
-            {
-                id: 1,
-                name: 'Нейро-капучино',
-                description: 'бодрящий капучино для старта работы',
-                image: 'images/img_1.jpg',
-                sizes: [
-                    { size: '200мл', price: 89 },
-                    { size: '350мл', price: 110 }
-                ]
-            },
-            {
-                id: 2,
-                name: 'Квантовый раф',
-                description: 'Почти как компьютер, только на сливках',
-                image: 'images/img_2.jpg',
-                sizes: [
-                    { size: '350мл', price: 140 },
-                    { size: '450мл', price: 200 }
-                ]
-            },
-            {
-                id: 3,
-                name: 'Цифровой Латте',
-                description: 'С ним точно ничего не забудите',
-                image: 'images/img_3.jpg',
-                sizes: [
-                    { size: '250мл', price: 110 },
-                    { size: '350мл', price: 150 }
-                ]
-            },
-            {
-                id: 4,
-                name: 'Серверный американо',
-                description: 'Крепкий, для настоящих senior',
-                image: 'images/img_4.jpg',
-                sizes: [
-                    { size: '200мл', price: 110 },
-                    { size: '300мл', price: 130 }
-                ]
-            },
-            {
-                id: 5,
-                name: 'Ваш нейро-кофе',
-                description: 'Сгенерируйте свой нейро-кофе дня',
-                image: 'images/img_5.jpg',
-                sizes: [
-                    { size: '200мл-450мл', price: 80 },
-                    { size: '200мл-450мл', price: 350 }
-                ]
-            },
-            {
-                id: 6,
-                name: 'Матча ревью',
-                description: 'Для тех, у кого сегодня код-ревью',
-                image: 'images/img_6.jpg',
-                sizes: [
-                    { size: '250мл', price: 200 },
-                    { size: '350мл', price: 250 }
-                ]
-            }
+            { id: 1, name: 'Нейро-капучино', description: 'бодрящий капучино для старта работы', image: 'images/img_1.jpg', category: 'Напитки', sizes: [{ size: '200мл', price: 89 }, { size: '350мл', price: 110 }] },
+            { id: 2, name: 'Квантовый раф', description: 'Почти как компьютер, только на сливках', image: 'images/img_2.jpg', category: 'Напитки', sizes: [{ size: '350мл', price: 140 }, { size: '450мл', price: 200 }] },
+            { id: 3, name: 'Цифровой Латте', description: 'С ним точно ничего не забудите', image: 'images/img_3.jpg', category: 'Напитки', sizes: [{ size: '250мл', price: 110 }, { size: '350мл', price: 150 }] },
+            { id: 4, name: 'Серверный американо', description: 'Крепкий, для настоящих senior', image: 'images/img_4.jpg', category: 'Напитки', sizes: [{ size: '200мл', price: 110 }, { size: '300мл', price: 130 }] },
+            { id: 5, name: 'Ваш нейро-кофе', description: 'Сгенерируйте свой нейро-кофе дня', image: 'images/img_5.jpg', category: 'Напитки', sizes: [{ size: '200мл-450мл', price: 80 }, { size: '200мл-450мл', price: 350 }] },
+            { id: 6, name: 'Матча ревью', description: 'Для тех, у кого сегодня код-ревью', image: 'images/img_6.jpg', category: 'Напитки', sizes: [{ size: '250мл', price: 200 }, { size: '350мл', price: 250 }] },
+            { id: 7, name: 'Круассан', description: 'Свежая выпечка', image: 'images/img_7.jpg', category: 'Гарниры', sizes: [{ size: '1 шт', price: 120 }] },
+            { id: 8, name: 'Печенье с шоколадом', description: 'Домашнее печенье', image: 'images/img_8.jpg', category: 'Гарниры', sizes: [{ size: '1 шт', price: 50 }] },
+            { id: 9, name: 'Морковный кекс', description: 'Нежный десерт', image: 'images/img_9.jpg', category: 'Десерты', sizes: [{ size: 'порция', price: 160 }] },
+            { id: 10, name: 'Айс-латте', description: 'Освежающий холодный латте со льдом', image: 'images/img_10.jpg', category: 'Напитки', sizes: [{ size: '250мл', price: 150 }, { size: '400мл', price: 190 }] },
+            { id: 11, name: 'Cold Brew', description: 'Долгозаваренный холодный кофе', image: 'images/img_11.jpg', category: 'Напитки', sizes: [{ size: '300мл', price: 180 }] },
+            { id: 12, name: 'Раф карамель', description: 'Кремовый раф с карамельной ноткой', image: 'images/img_12.jpg', category: 'Напитки', sizes: [{ size: '350мл', price: 170 },{ size: '450мл', price: 270 }] },
+            { id: 13, name: 'Сэндвич с курицей', description: 'Тёплый сэндвич с маринованной курицей и овощами', image: 'images/img_13.jpg', category: 'Гарниры', sizes: [{ size: '1 шт', price: 220 }] },
+            { id: 14, name: 'Сэндвич вегетарианский', description: 'Сэндвич с авокадо, хумусом и ростками', image: 'images/img_14.jpg', category: 'Гарниры', sizes: [{ size: '1 шт', price: 200 }] },
+            { id: 15, name: 'Банановый маффин', description: 'Пышный маффин с бананом и орехами', image: 'images/img_15.jpg', category: 'Десерты', sizes: [{ size: '1 шт', price: 120 }] },
+            { id: 16, name: 'Брауни шоколадный', description: 'Насыщенный шоколадный брауни', image: 'images/img_16.jpg', category: 'Десерты', sizes: [{ size: 'порция', price: 150 }] },
+            { id: 17, name: 'Йогурт с гранолой', description: 'Лёгкий завтрак с йогуртом и хрустящей гранолой', image: 'images/img_17.jpg', category: 'Завтраки', sizes: [{ size: 'порция', price: 140 }] },
+            { id: 18, name: 'Протеиновый коктейль', description: 'Белковый буст после тренеровки', image: 'images/img_18.jpg', category: 'Напитки', sizes: [{ size: '200мл', price: 150 },{ size: '500мл', price: 350 }] }
         ];
 
         async function loadMenuFromAPI() {
@@ -291,12 +266,13 @@
                         description: item.description,
                         image: item.image,
                         sizes: item.sizes.map(s => ({ size: s.size, price: s.price })),
-                        category: item.category
+                        category: item.category || item.categoryName || 'Напитки'
                     }));
                 }
             } catch (e) {
                 console.warn('Failed to load menu from API, using fallback data');
             }
+            renderCategories();
             renderMenuItems();
         }
 
@@ -313,12 +289,35 @@
             }, 100);
         });
 
+        let activeCategory = 'Все';
+
+        function renderCategories() {
+            const container = document.querySelector('.menu-container');
+            if (!container) return;
+            const categories = ['Все', ...Array.from(new Set(menuItems.map(i=>i.category || 'Напитки'))).sort()];
+            const existing = document.getElementById('categoryBar');
+            if (existing) existing.remove();
+            const bar = document.createElement('div');
+            bar.id = 'categoryBar';
+            bar.className = 'category-bar';
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'category-button' + (cat===activeCategory ? ' active' : '');
+                btn.textContent = cat;
+                btn.addEventListener('click', () => { activeCategory = cat; document.querySelectorAll('.category-button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderMenuItems(); });
+                bar.appendChild(btn);
+            });
+            container.insertBefore(bar, container.querySelector('.menu-grid'));
+        }
+
         function renderMenuItems() {
             const menuGrid = document.getElementById('menuGrid');
             if (!menuGrid) return;
 
-            menuGrid.innerHTML = menuItems.map((item, i) => `
-                <div class="menu-item liquid-glass menu-item-reveal" style="animation-delay: ${0.05 * (i + 1)}s">
+            const itemsToRender = activeCategory === 'Все' ? menuItems : menuItems.filter(it => (it.category||'').toLowerCase() === activeCategory.toLowerCase());
+
+            menuGrid.innerHTML = itemsToRender.map((item, i) => `
+                <div class="menu-item liquid-glass menu-item-reveal" style="animation-delay: ${0.05 * (i + 1)}s" data-id="${item.id}">
                     <div class="menu-item-image">
                         <img src="${item.image}" alt="${item.name}" loading="lazy">
                     </div>
@@ -336,19 +335,56 @@
                                 </div>
                             `).join('')}
                         </div>
-                        ${item.id === 5 ? `
-                            <button class="generate-coffee-btn" onclick="openCoffeeGenerator(${item.id}, '${item.name.replace(/'/g, "\\'")}', '${item.image}')">
-                                <i class="fas fa-magic"></i> Сгенерировать
-                            </button>
-                        ` : `
-                            <button class="add-to-cart-btn" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}', '${item.image}')">
-                                <i class="fas fa-plus"></i> В корзину
-                            </button>
-                        `}
+                        <div style="display:flex; gap:0.5rem; margin-top:0.6rem;">
+                            ${item.id === 5 ? `
+                                <button class="generate-coffee-btn" onclick="openCoffeeGenerator(${item.id}, '${item.name.replace(/'/g, "\\'")}', '${item.image}')">
+                                    <i class="fas fa-magic"></i> Сгенерировать
+                                </button>
+                            ` : `
+                                <button class="add-to-cart-btn" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}', '${item.image}')">
+                                    <i class="fas fa-plus"></i> В корзину
+                                </button>
+                            `}
+                        </div>
                     </div>
                 </div>
             `).join('');
         }
+
+        function getItemById(id){ return menuItems.find(i=>i.id==id) || null; }
+
+        function openQuickView(itemId){
+            const item = getItemById(itemId);
+            if (!item) return;
+            document.getElementById('qvImage').src = item.image;
+            document.getElementById('qvName').textContent = item.name;
+            document.getElementById('qvDescription').textContent = item.description || '';
+            const sizesEl = document.getElementById('qvSizes'); sizesEl.innerHTML = '';
+            item.sizes.forEach((s, idx)=>{
+                const el = document.createElement('div'); el.className = 'size-option ' + (idx===0?'selected':''); el.dataset.size=s.size; el.dataset.price=s.price; el.innerHTML = `<span class="size-label">${s.size}</span> <span class="size-price">${s.price}₽</span>`;
+                el.addEventListener('click', ()=>{ document.querySelectorAll('#qvSizes .size-option').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); });
+                sizesEl.appendChild(el);
+            });
+            // configure buttons
+            const addBtn = document.getElementById('qvAddToCart');
+            addBtn.onclick = ()=>{
+                const sel = sizesEl.querySelector('.size-option.selected');
+                const price = sel ? parseInt(sel.dataset.price) : (item.sizes[0] && item.sizes[0].price) || 0;
+                if (window.cartManager) {
+                    window.cartManager.addItem({ id: item.id, name: item.name, price: price, size: sel ? sel.dataset.size : (item.sizes[0] && item.sizes[0].size), image: item.image, quantity: 1 });
+                    document.getElementById('quickViewModal').style.display = 'none';
+                } else {
+                    showToast('Корзина не доступна', 'warning');
+                }
+            };
+            const genBtn = document.getElementById('qvGenerate');
+            if (item.id === 5) { genBtn.style.display='inline-flex'; genBtn.onclick = ()=> openCoffeeGenerator(item.id, item.name, item.image); }
+            else genBtn.style.display='none';
+
+            document.getElementById('quickViewModal').style.display = 'flex';
+        }
+
+        function closeQuickView(){ document.getElementById('quickViewModal').style.display = 'none'; }
 
         function selectSize(itemId, size, price) {
             const sizeOptions = document.querySelectorAll(`#sizes-${itemId} .size-option`);
@@ -534,6 +570,9 @@
             document.getElementById('toggleFullAi').addEventListener('click', function() {
                 document.getElementById('resultFullAiSection').classList.toggle('expanded');
             });
+            // quick view close
+            const qvClose = document.getElementById('quickViewClose'); if (qvClose) qvClose.addEventListener('click', closeQuickView);
+            document.getElementById('quickViewModal').addEventListener('click', function(e){ if(e.target===this) closeQuickView(); });
         });
     </script>
     <script>

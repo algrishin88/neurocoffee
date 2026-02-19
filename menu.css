@@ -47,7 +47,7 @@ header {
     font-family: 'Playfair Display', serif;
     font-size: 1.8rem;
     font-weight: 700;
-    background: linear-gradient(45deg, #ba9786, #a09995);
+    background: linear-gradient(45deg, #ffcfb6, #d2cac5);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1216,4 +1216,17 @@ header {
     margin: 0 0.35em;
     opacity: 0.6;
 }
+
+/* Quick view and category bar (moved from menubeta.html) */
+.category-bar { display:flex; gap:0.5rem; flex-wrap:wrap; margin:1rem 0 0.6rem; }
+.category-button { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.06); padding:0.45rem 0.8rem; border-radius:999px; cursor:pointer; color:inherit; font-weight:600; }
+.category-button.active { background:linear-gradient(90deg,#ac8c7a, #96918d); color:#fff; border-color:transparent; }
+.menu-controls { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:0.5rem; }
+.quick-view-modal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:1100; background:rgba(0,0,0,0.5); }
+.quick-view-card { background:var(--glass-bg, #0f172a); color:inherit; width:min(900px,95%); border-radius:12px; padding:1rem; display:flex; gap:1rem; align-items:flex-start; }
+.quick-view-card img { width:260px; height:auto; object-fit:cover; border-radius:8px; }
+.quick-view-info { flex:1; }
+.quick-view-sizes { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.6rem; }
+.quick-view-close { position:absolute; right:1rem; top:1rem; background:transparent; border:none; color:#fff; font-size:1.1rem; cursor:pointer; }
+@media (max-width:720px){ .quick-view-card{flex-direction:column; align-items:center} .quick-view-card img{width:90%} }
 
