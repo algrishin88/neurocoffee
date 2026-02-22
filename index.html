@@ -60,7 +60,7 @@
             <div class="sidebar">
                 <div class="sidebar-brand">НейроКофейня</div>
                 <ul>
-                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="index.html" class="active"><i class="fas fa-home"></i> Главная</a></li>
                     <li><a href="menubeta.html"><i class="fas fa-coffee"></i> Меню</a></li>
                     <li><a href="services.html"><i class="fas fa-info-circle"></i> О нас</a></li>
                     <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
@@ -163,7 +163,7 @@
 									</div>
                     <div class="card-content">
                         <h3 class="card-title">Нейро-капучино</h3>
-                        <p class="card-description">бодрящий нейро-капучино для старта рабочего дня</p>
+                        <p class="card-description">Бодрящий нейро-капучино для старта рабочего дня</p>
                         <div class="card-price">200мл - 89₽ | 350мл - 110₽</div>
                 </div>
 			</div>
@@ -183,7 +183,7 @@
 		</div>
                     <div class="card-content">
                         <h3 class="card-title">Цифровой Латте</h3>
-                        <p class="card-description">С ним точно ничего не забудите</p>
+                        <p class="card-description">С ним точно ничего не забудете</p>
                         <div class="card-price">250мл - 110₽ | 350мл - 150₽</div>
 				</div>
 			</div>
@@ -219,7 +219,7 @@
                     <div class="feature-icon feature-icon-pulse">
                         <i class="fas fa-truck"></i>
 					</div>
-                    <h3 class="feature-title">Конфортное пространство</h3>
+                    <h3 class="feature-title">Комфортное пространство</h3>
                     <p class="feature-description">Можете поработать, пообщаться или просто отдохнуть</p>
 			</div>
 		</div>
@@ -392,7 +392,7 @@
                 }
             } catch (error) {
                 console.error('Booking error:', error);
-                const msg = error.message || 'Ошибка при бронировании. Попробуйте еще раз.';
+                const msg = error.message || 'Ошибка при бронировании. Попробуйте ещё раз.';
                 showToast(msg, 'error');
             } finally {
                 btn.disabled = false;

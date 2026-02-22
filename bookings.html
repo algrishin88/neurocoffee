@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Мои бронирования — НейроКофейня. Управляйте вашими забронированными столиками.">
+    <meta property="og:title" content="Мои бронирования — НейроКофейня">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ru_RU">
+    <title>Бронирования - НейроКофейня</title>
+    <link rel="icon" href="images/logo.ico.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="main-style.css">
+    
+    <script src="register-login.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <button id="sidebarToggle">☰</button>
+        <div class="nav-container">
+            <a href="index.html" class="logo">НейроКофейня</a>
+            <nav class="nav-logo">
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="active">Главная</a></li>
+                    <li><a href="menubeta.html">Меню</a></li>
+                    <li><a href="services.html">О нас</a></li>
+                    <li><a href="contact.html">Контакты</a></li>
+                </ul>
+            </nav>
+            <div class="header-right">
+                <div class="cart-icon-container" id="cartIconContainer" style="display: none;">
+                    <button class="cart-btn" id="cartBtn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+                </div>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn btn-secondary">Войти</a>
+                    <a href="register.html" class="btn btn-primary">Регистрация</a>
+                </div>
+            </div>
+            <div class="sidebar">
+                <div class="sidebar-brand">НейроКофейня</div>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="menubeta.html"><i class="fas fa-coffee"></i> Меню</a></li>
+                    <li><a href="services.html"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
+                    <li><a href="bookings.html" class="active"><i class="fas fa-calendar-check"></i> Мои бронирования</a></li>
+                </ul>
+                <div class="sidebar-social">
+                    <a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank" rel="noopener"><i class="fab fa-telegram"></i></a>
+                    <a href="https://dzen.ru/id/65e0e96ea9bdc976e134ca84?share_to=link" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i></a>
+                    <a href="https://yandex.ru" target="_blank" rel="noopener"><i class="fab fa-yandex"></i></a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h2>Корзина</h2>
+            <button class="close-cart" id="closeCart">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <p>Ваша корзина пуста</p>
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Итого:</span>
+                <span class="total-price" id="totalPrice">0 ₽</span>
+            </div>
+            <button class="checkout-btn" id="checkoutBtn" disabled>Оформить заказ</button>
+        </div>
+    </div>
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Hero Section -->
+        <div class="hero-section animated fadeIn">
+            <h1 class="hero-title hero-title-glow">Мои бронирования</h1>
+            <p class="hero-subtitle animated fadeIn" style="animation-delay: 0.3s; animation-fill-mode: both;">Управляйте вашими забронированными столиками</p>
+        </div>
+
+        <!-- Bookings Container -->
+        <div id="bookingsContainer" style="max-width: 900px; margin: 0 auto;">
+            <div id="bookingsList"></div>
+            <div id="noBookings" style="text-align: center; padding: 3rem 1rem;">
+                <i class="fas fa-calendar-times" style="font-size: 4rem; opacity: 0.5; margin-bottom: 1rem; display: block;"></i>
+                <p style="font-size: 1.1rem; opacity: 0.8;">У вас нет активных бронирований</p>
+                <a href="index.html" class="btn btn-primary" style="margin-top: 1rem; display: inline-block;">Вернуться на главную</a>
+            </div>
+            <div id="loadingSpinner" style="text-align: center; padding: 3rem; display: none;">
+                <div class="loading-spinner" style="display: inline-block;"></div>
+                <p style="margin-top: 1rem;">Загрузка бронирований...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Как связаться с нами?</h3>
+                <ul>
+                    <li><a href="tel:+79001234567"><i class="fas fa-phone"></i> +7 *** *** 05-70</a></li>
+                    <li><a href="mailto:TishUp@yandex.ru"><i class="fas fa-envelope"></i> TishUp@yandex.ru</a></li>
+                    <li><a href="requisites.html"><i class="fas fa-file-invoice"></i> Реквизиты</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Мы в соцсетях</h3>
+                <ul class="social-icons">
+                    <li><a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank" rel="noopener"><i class="fab fa-telegram"></i></a></li>
+                    <li><a href="https://dzen.ru/id/65e0e96ea9bdc976e134ca84?share_to=link" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i></a></li>
+                    <li><a href="https://yandex.ru" target="_blank" rel="noopener"><i class="fab fa-yandex"></i></a></li>
+                </ul>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024–2026 НейроКофейня</p>
+                <p class="copyright-credits">Designed by <a href="https://ssir-team.ru/" target="_blank" rel="noopener">ssir-team</a> <span class="copyright-sep">|</span> <a href="https://t.me/Tisha_sir" target="_blank" rel="noopener">Trogovitsky</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/shared-ui.js"></script>
+    <script src="js/cart.js"></script>
+    <script>
+        // Load and display bookings
+        async function loadBookings() {
+            const container = document.getElementById('bookingsContainer');
+            const bookingsList = document.getElementById('bookingsList');
+            const noBookings = document.getElementById('noBookings');
+            const spinner = document.getElementById('loadingSpinner');
+
+            // Check if user is logged in
+            const currentUser = JSON.parse(localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user') || 'null');
+            if (!currentUser || currentUser === 'null') {
+                bookingsList.innerHTML = '<p style="text-align:center; padding:2rem;">Пожалуйста, <a href="login.html">войдите в аккаунт</a>, чтобы увидеть ваши бронирования.</p>';
+                return;
+            }
+
+            spinner.style.display = 'block';
+            noBookings.style.display = 'none';
+
+            try {
+                if (!window.API || !window.API.bookings) {
+                    throw new Error('API недоступно');
+                }
+
+                const response = await window.API.bookings.getMyBookings();
+                
+                spinner.style.display = 'none';
+
+                if (response.success && response.bookings && response.bookings.length > 0) {
+                    noBookings.style.display = 'none';
+                    bookingsList.innerHTML = response.bookings.map(booking => {
+                        const bookingDate = new Date(booking.date);
+                        const dateStr = bookingDate.toLocaleDateString('ru-RU', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        });
+                        
+                        const statusBadge = `<span class="status-badge ${booking.status}">${getStatusLabel(booking.status)}</span>`;
+                        
+                        return `
+                            <div class="booking-card liquid-glass">
+                                <div class="booking-header">
+                                    <h3 class="booking-zone">${booking.zone}</h3>
+                                    ${statusBadge}
+                                </div>
+                                <div class="booking-details">
+                                    <div class="detail-row">
+                                        <span class="detail-label"><i class="fas fa-calendar"></i> Дата:</span>
+                                        <span class="detail-value">${dateStr}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label"><i class="fas fa-clock"></i> Время:</span>
+                                        <span class="detail-value">${booking.time}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label"><i class="fas fa-users"></i> Гостей:</span>
+                                        <span class="detail-value">${booking.guests}</span>
+                                    </div>
+                                    ${booking.name ? `
+                                    <div class="detail-row">
+                                        <span class="detail-label"><i class="fas fa-user"></i> Имя:</span>
+                                        <span class="detail-value">${booking.name}</span>
+                                    </div>
+                                    ` : ''}
+                                    ${booking.phone ? `
+                                    <div class="detail-row">
+                                        <span class="detail-label"><i class="fas fa-phone"></i> Телефон:</span>
+                                        <span class="detail-value">${booking.phone}</span>
+                                    </div>
+                                    ` : ''}
+                                    ${booking.notes ? `
+                                    <div class="detail-row">
+                                        <span class="detail-label"><i class="fas fa-sticky-note"></i> Заметки:</span>
+                                        <span class="detail-value">${booking.notes}</span>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                                <div class="booking-actions">
+                                    <button class="btn btn-secondary" onclick="editBooking('${booking.id}')"><i class="fas fa-edit"></i> Изменить</button>
+                                    <button class="btn btn-secondary" onclick="cancelBooking('${booking.id}')"><i class="fas fa-times"></i> Отменить</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    bookingsList.innerHTML = '';
+                    noBookings.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                spinner.style.display = 'none';
+                bookingsList.innerHTML = `<p style="text-align:center; color:#ef4444; padding:2rem;">Ошибка при загрузке бронирований</p>`;
+            }
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                pending: '⏳ В ожидании',
+                confirmed: '✓ Подтвержден',
+                cancelled: '✗ Отменен'
+            };
+            return labels[status] || status;
+        }
+
+        function editBooking(bookingId) {
+            showToast('Функция редактирования в разработке', 'info');
+        }
+
+        async function cancelBooking(bookingId) {
+            if (!confirm('Вы уверены, что хотите отменить эту бронь?')) return;
+            showToast('Функция отмены в разработке', 'info');
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuthAndUpdateUI();
+            await loadBookings();
+            
+            setTimeout(() => {
+                if (window.cartManager) {
+                    window.cartManager.updateCartUI();
+                }
+            }, 100);
+        });
+    </script>
+    <style>
+        .booking-card {
+            background: linear-gradient(135deg, rgba(130, 143, 153, 0.1), rgba(79, 157, 166, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .booking-card:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .booking-zone {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+            color: #fff;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-badge.pending {
+            background: rgba(249, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(249, 158, 11, 0.3);
+        }
+
+        .status-badge.confirmed {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-badge.cancelled {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .booking-details {
+            margin: 1rem 0;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .detail-label {
+            flex: 0 0 120px;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-value {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .booking-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .booking-actions .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 640px) {
+            .booking-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .detail-label {
+                flex: 1 1 100%;
+            }
+
+            .booking-actions {
+                flex-direction: column;
+            }
+
+            .booking-actions .btn {
+                min-width: auto;
+            }
+        }
+    </style>
+    <script src="js/chat-widget.js"></script>
+</body>
+</html>

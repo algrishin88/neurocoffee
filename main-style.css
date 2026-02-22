@@ -177,6 +177,11 @@ header {
     color: #4ecdc4;
 }
 
+.sidebar a.active {
+    background: rgba(78, 205, 196, 0.2);
+    color: #4ecdc4;
+}
+
 .sidebar-overlay {
     position: fixed;
     top: 0;

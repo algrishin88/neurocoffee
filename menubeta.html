@@ -61,7 +61,7 @@
                 <div class="sidebar-brand">НейроКофейня</div>
                 <ul>
                     <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
-                    <li><a href="menubeta.html"><i class="fas fa-coffee"></i> Меню</a></li>
+                    <li><a href="menubeta.html" class="active"><i class="fas fa-coffee"></i> Меню</a></li>
                     <li><a href="services.html"><i class="fas fa-info-circle"></i> О нас</a></li>
                     <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
                     <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
@@ -111,7 +111,7 @@
             <div class="coffee-modal-body" id="coffeeModalBody">
                 <div class="form-group">
                     <label for="mood">Ваше настроение</label>
-                    <textarea id="mood" placeholder="Опишите ваше настроение, что вы чувствуете, какое кофе хотели бы попробовать..."></textarea>
+                    <textarea id="mood" placeholder="Опишите ваше настроение: что вы чувствуете, какой кофе вы хотели бы попробовать..."></textarea>
                 </div>
                 <div class="form-group">
                     <label for="preferences">Предпочтения (необязательно)</label>
@@ -194,7 +194,7 @@
     <div class="menu-container">
         <div class="menu-header animated fadeIn" style="animation-duration: 0.8s;">
             <h1 class="menu-title menu-title-glow">Наше Меню</h1>
-            <p class="menu-subtitle animated fadeIn" style="animation-delay: 0.2s; animation-fill-mode: both;">*меню будет обновляться</p>
+            <p class="menu-subtitle animated fadeIn" style="animation-delay: 0.2s; animation-fill-mode: both;">*Меню будет обновляться</p>
         </div>
 
         <div class="menu-grid" id="menuGrid">
@@ -235,11 +235,11 @@
     <script>
         // Menu items data (fallback) with categories
         let menuItems = [
-            { id: 1, name: 'Нейро-капучино', description: 'бодрящий капучино для старта работы', image: 'images/img_1.jpg', category: 'Напитки', sizes: [{ size: '200мл', price: 89 }, { size: '350мл', price: 110 }] },
+            { id: 1, name: 'Нейро-капучино', description: 'Бодрящий капучино для начала рабочего дня', image: 'images/img_1.jpg', category: 'Напитки', sizes: [{ size: '200мл', price: 89 }, { size: '350мл', price: 110 }] },
             { id: 2, name: 'Квантовый раф', description: 'Почти как компьютер, только на сливках', image: 'images/img_2.jpg', category: 'Напитки', sizes: [{ size: '350мл', price: 140 }, { size: '450мл', price: 200 }] },
-            { id: 3, name: 'Цифровой Латте', description: 'С ним точно ничего не забудите', image: 'images/img_3.jpg', category: 'Напитки', sizes: [{ size: '250мл', price: 110 }, { size: '350мл', price: 150 }] },
-            { id: 4, name: 'Серверный американо', description: 'Крепкий, для настоящих senior', image: 'images/img_4.jpg', category: 'Напитки', sizes: [{ size: '200мл', price: 110 }, { size: '300мл', price: 130 }] },
-            { id: 5, name: 'Ваш нейро-кофе', description: 'Сгенерируйте свой нейро-кофе дня', image: 'images/img_5.jpg', category: 'Напитки', sizes: [{ size: '200мл-450мл', price: 80 }, { size: '200мл-450мл', price: 350 }] },
+            { id: 3, name: 'Цифровой Латте', description: 'С ним вы точно ничего не забудете', image: 'images/img_3.jpg', category: 'Напитки', sizes: [{ size: '250мл', price: 110 }, { size: '350мл', price: 150 }] },
+            { id: 4, name: 'Серверный американо', description: 'Крепкий, для настоящих профи', image: 'images/img_4.jpg', category: 'Напитки', sizes: [{ size: '200мл', price: 110 }, { size: '300мл', price: 130 }] },
+            { id: 5, name: 'Ваш нейро-кофе', description: 'Сгенерируйте нейро-кофе дня', image: 'images/img_5.jpg', category: 'Напитки', sizes: [{ size: '200мл-450мл', price: 80 }, { size: '200мл-450мл', price: 350 }] },
             { id: 6, name: 'Матча ревью', description: 'Для тех, у кого сегодня код-ревью', image: 'images/img_6.jpg', category: 'Напитки', sizes: [{ size: '250мл', price: 200 }, { size: '350мл', price: 250 }] },
             { id: 7, name: 'Круассан', description: 'Свежая выпечка', image: 'images/img_7.jpg', category: 'Гарниры', sizes: [{ size: '1 шт', price: 120 }] },
             { id: 8, name: 'Печенье с шоколадом', description: 'Домашнее печенье', image: 'images/img_8.jpg', category: 'Гарниры', sizes: [{ size: '1 шт', price: 50 }] },
@@ -252,7 +252,7 @@
             { id: 15, name: 'Банановый маффин', description: 'Пышный маффин с бананом и орехами', image: 'images/img_15.jpg', category: 'Десерты', sizes: [{ size: '1 шт', price: 120 }] },
             { id: 16, name: 'Брауни шоколадный', description: 'Насыщенный шоколадный брауни', image: 'images/img_16.jpg', category: 'Десерты', sizes: [{ size: 'порция', price: 150 }] },
             { id: 17, name: 'Йогурт с гранолой', description: 'Лёгкий завтрак с йогуртом и хрустящей гранолой', image: 'images/img_17.jpg', category: 'Завтраки', sizes: [{ size: 'порция', price: 140 }] },
-            { id: 18, name: 'Протеиновый коктейль', description: 'Белковый буст после тренеровки', image: 'images/img_18.jpg', category: 'Напитки', sizes: [{ size: '200мл', price: 150 },{ size: '500мл', price: 350 }] }
+            { id: 18, name: 'Протеиновый коктейль', description: 'Белковый заряд после тренировки', image: 'images/img_18.jpg', category: 'Напитки', sizes: [{ size: '200мл', price: 150 },{ size: '500мл', price: 350 }] }
         ];
 
         async function loadMenuFromAPI() {
@@ -374,7 +374,7 @@
                     window.cartManager.addItem({ id: item.id, name: item.name, price: price, size: sel ? sel.dataset.size : (item.sizes[0] && item.sizes[0].size), image: item.image, quantity: 1 });
                     document.getElementById('quickViewModal').style.display = 'none';
                 } else {
-                    showToast('Корзина не доступна', 'warning');
+                    showToast('Корзина недоступна.', 'warning');
                 }
             };
             const genBtn = document.getElementById('qvGenerate');
@@ -413,7 +413,7 @@
             const currentUser = JSON.parse(localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user') || 'null');
             
             if (!currentUser || currentUser === 'null') {
-                showToast('Пожалуйста, войдите в аккаунт, чтобы сгенерировать кофе', 'warning');
+                showToast('Пожалуйста, войдите в аккаунт, чтобы сгенерировать кофе.', 'warning');
                 window.location.href = 'login.html';
                 return;
             }
@@ -451,7 +451,7 @@
             const preferences = document.getElementById('preferences').value.trim();
 
             if (!mood && !preferences) {
-                showToast('Пожалуйста, опишите ваше настроение или предпочтения', 'warning');
+                showToast('Пожалуйста, опишите ваше настроение или предпочтения.', 'warning');
                 return;
             }
 
@@ -503,7 +503,7 @@
                 }
             } catch (error) {
                 console.error('Generation error:', error);
-                showToast('Ошибка при генерации рецепта. ' + (error.message || 'Попробуйте еще раз.'), 'error');
+                showToast('Ошибка при генерации рецепта. ' + (error.message || 'Попробуйте ещё раз.'), 'error');
                 formEl.style.display = 'block';
                 resultEl.style.display = 'none';
             } finally {
@@ -537,14 +537,14 @@
             const currentUser = JSON.parse(localStorage.getItem('neuro-cafe-current-user') || sessionStorage.getItem('neuro-cafe-current-user') || 'null');
             
             if (!currentUser || currentUser === 'null') {
-                showToast('Пожалуйста, войдите в аккаунт, чтобы добавить товар в корзину', 'warning');
+                showToast('Пожалуйста, войдите в аккаунт, чтобы добавить товар в корзину.', 'warning');
                 window.location.href = 'login.html';
                 return;
             }
 
             const selectedSize = getSelectedSize(itemId);
             if (!selectedSize) {
-                showToast('Пожалуйста, выберите размер', 'warning');
+                showToast('Пожалуйста, выберите размер.', 'warning');
                 return;
             }
 

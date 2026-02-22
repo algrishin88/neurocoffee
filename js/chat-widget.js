@@ -192,12 +192,12 @@
           body: JSON.stringify(payload),
         });
         const data = await res.json().catch(function () { return {}; });
-        const reply = (data.reply != null ? data.reply : data.message) || 'Не удалось ответить. Попробуй ещё раз.';
+        const reply = (data.reply != null ? data.reply : data.message) || 'Не удалось ответить. Попробуйте ещё раз.';
         updateTyping(typingEl, reply);
         saveHistory([...history, { role: 'user', text }, { role: 'assistant', text: reply }]);
         checkOperatorBar();
       } catch (err) {
-        updateTyping(typingEl, 'Ошибка связи. Проверь интернет и попробуй снова.');
+        updateTyping(typingEl, 'Ошибка связи. Проверьте интернет и попробуйте снова.');
       }
       sendBtn.disabled = false;
       scrollToBottom(messagesEl);

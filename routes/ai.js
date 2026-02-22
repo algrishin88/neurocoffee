@@ -182,14 +182,14 @@ router.post('/chat', async (req, res) => {
             }
         );
 
-        const reply = data?.result?.alternatives?.[0]?.message?.text || 'Не смог ответить. Попробуй ещё раз.';
+        const reply = data?.result?.alternatives?.[0]?.message?.text || 'Не смог ответить. Попробуйте ещё раз.';
         res.json({ success: true, reply });
     } catch (e) {
         console.error('AI chat error:', e.response?.data || e.message);
         res.status(500).json({
             success: false,
             message: 'Ошибка чата',
-            reply: 'Что-то пошло не так. Попробуй через минуту.',
+            reply: 'Что-то пошло не так. Попробуйте через минуту.',
         });
     }
 });

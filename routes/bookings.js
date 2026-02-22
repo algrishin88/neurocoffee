@@ -54,7 +54,7 @@ router.get('/availability', async (req, res) => {
 router.post(
   '/',
   [
-    body('guests').isInt({ min: 1 }).withMessage('Количество гостей должно быть не менее 1'),
+    body('guests').isInt({ min: 1, max: 12 }).withMessage('Количество гостей должно быть от 1 до 12'),
     body('date').notEmpty().withMessage('Дата обязательна'),
     body('time').notEmpty().withMessage('Время обязательно'),
   ],
@@ -68,7 +68,16 @@ router.post(
       const { guests, date, time, zone, notes, name, phone } = req.body;
       const userId = req.userId || null;
       const selectedZone = zone || 'Общая зона';
-      const capacity = ZONE_CAPACITY[selectedZone] || 12;
+      
+      // Validate zone exists
+      if (!ZONE_CAPACITY[selectedZone]) {
+        return res.status(400).json({
+          success: false,
+          message: `Зона ${selectedZone} не найдена. Выберите одну из доступных зон.`,
+        });
+      }
+      
+      const capacity = ZONE_CAPACITY[selectedZone];
 
       // Check availability for the selected zone
       const bookedResult = await db.query(

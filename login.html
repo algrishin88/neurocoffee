@@ -39,7 +39,7 @@
             <div class="logo">НейроКофейня</div>
             <nav class="nav-logo">
                 <ul class="nav-menu">
-                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="index.html" class="active">Главная</a></li>
                     <li><a href="menubeta.html">Меню</a></li>
                     <li><a href="services.html">О нас</a></li>
                     <li><a href="contact.html">Контакты</a></li>
@@ -50,12 +50,19 @@
                 <a href="register.html" class="btn btn-primary">Регистрация</a>
             </div>
             <div class="sidebar">
-            <ul>
-                <li><a href="index.html">Главная</a></li>
-                <li><a href="menubeta.html">Меню</a></li>
-                <li><a href="services.html">О нас</a></li>
-                <li><a href="contact.html">Контакты</a></li>
-            </ul>
+                <div class="sidebar-brand">НейроКофейня</div>
+                <ul>
+                    <li><a href="index.html" class="active"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="menubeta.html"><i class="fas fa-coffee"></i> Меню</a></li>
+                    <li><a href="services.html"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
+                </ul>
+                <div class="sidebar-social">
+                    <a href="https://t.me/+cmzsuwMsLSY3ZmZi" target="_blank" rel="noopener"><i class="fab fa-telegram"></i></a>
+                    <a href="https://dzen.ru/id/65e0e96ea9bdc976e134ca84?share_to=link" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i></a>
+                    <a href="https://yandex.ru" target="_blank" rel="noopener"><i class="fab fa-yandex"></i></a>
+                </div>
             </div>
         </div>
     </header>
@@ -186,12 +193,12 @@
                 
                 // Simple validation
                 if (!email || !password) {
-                    showMessage('Пожалуйста, заполните все поля', 'error');
+                    showMessage('Пожалуйста, заполните все поля.', 'error');
                     return;
                 }
                 
                 if (!isValidEmail(email)) {
-                    showMessage('Пожалуйста, введите корректный email', 'error');
+                    showMessage('Пожалуйста, введите корректный email.', 'error');
                     return;
                 }
                 

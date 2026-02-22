@@ -87,7 +87,7 @@ class CartManager {
     async addItem(item) {
         const currentUser = this.getCurrentUser();
         if (!currentUser) {
-            showToast('Пожалуйста, войдите в аккаунт, чтобы добавить товар в корзину', 'warning');
+            showToast('Пожалуйста, войдите в аккаунт, чтобы добавить товар в корзину.', 'warning');
             window.location.href = 'login.html';
             return;
         }
@@ -96,52 +96,26 @@ class CartManager {
         const normalizedItem = {
             itemId: item.itemId || item.id,
             name: item.name,
-            price: item.price,
+            price: parseFloat(item.price) || 0,
             size: item.size,
             image: item.image,
-            quantity: item.quantity || 1
+            quantity: parseInt(item.quantity) || 1
         };
 
         if (window.API) {
             try {
                 const response = await window.API.cart.addItem(normalizedItem);
-                if (response.success) {
+                if (response.success && response.cart) {
                     this.cart = response.cart.items || [];
                     this.updateCartUI();
                     this.showNotification('Товар добавлен в корзину');
+                } else {
+                    throw new Error(response.message || 'Ошибка добавления товара');
                 }
             } catch (error) {
-                console.error('Error adding to cart:', error);
-                // Fallback to localStorage
-                const itemId = normalizedItem.itemId;
-                const existingItem = this.cart.find(cartItem => 
-                    (cartItem.itemId || cartItem.id) === itemId && cartItem.size === normalizedItem.size
-                );
-                if (existingItem) {
-                    existingItem.quantity += 1;
-                } else {
-                    this.cart.push({ ...normalizedItem });
-                }
-                const cartKey = `neuro-cafe-cart-${currentUser.id}`;
-                localStorage.setItem(cartKey, JSON.stringify(this.cart));
-                this.updateCartUI();
-                this.showNotification('Товар добавлен в корзину');
+                console.error('Error adding to cart via API:', error);
+                showToast('Ошибка при добавлении товара: ' + (error.message || 'Попробуйте ещё раз.'), 'error');
             }
-        } else {
-            // Fallback to localStorage
-            const itemId = normalizedItem.itemId;
-            const existingItem = this.cart.find(cartItem => 
-                (cartItem.itemId || cartItem.id) === itemId && cartItem.size === normalizedItem.size
-            );
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                this.cart.push({ ...normalizedItem });
-            }
-            const cartKey = `neuro-cafe-cart-${currentUser.id}`;
-            localStorage.setItem(cartKey, JSON.stringify(this.cart));
-            this.updateCartUI();
-            this.showNotification('Товар добавлен в корзину');
         }
     }
 
@@ -312,18 +286,18 @@ class CartManager {
                 </div>
                 <div id="deliveryAddressBlock" style="display:none">
                     <label class="checkout-label">Адрес доставки *</label>
-                    <input type="text" id="checkoutAddress" placeholder="Город, улица, дом, квартира" class="checkout-input">
+                    <input type="text" id="checkoutAddress" placeholder="Город, улица, дом, квартира" class="checkout-input" minlength="5">
                 </div>
                 <label class="checkout-label">Телефон *</label>
-                <input type="tel" id="checkoutPhone" required class="checkout-input" placeholder="+7 (999) 123-45-67">
+                <input type="tel" id="checkoutPhone" required class="checkout-input" placeholder="+7 (999) 123-45-67" pattern="[0-9+()-\\s]*" minlength="11">
                 <label class="checkout-label">Комментарий</label>
-                <input type="text" id="checkoutNotes" class="checkout-input" placeholder="Пожелания к заказу">
+                <input type="text" id="checkoutNotes" class="checkout-input" placeholder="Пожелания к заказу" maxlength="200">
                 <div id="bonusBlock" class="checkout-bonus-block" style="display:none">
                     <label class="checkout-bonus-label">
                         <input type="checkbox" id="useBonusPoints">
-                        <span>Списать бонусы: <strong id="bonusAvailable">0</strong> (скидка до 50%)</span>
+                        <span>Использовать бонусы: <strong id="bonusAvailable">0</strong> ₽ (скидка до 50%)</span>
                     </label>
-                    <div id="bonusDiscount" class="bonus-discount-info" style="display:none"></div>
+                    <div id="bonusDiscount" class="bonus-discount-info" style="display:none; margin-top: 8px; font-size: 0.85rem; color: #22c55e;"></div>
                 </div>
                 <div class="checkout-form-btns">
                     <button type="submit" class="checkout-btn checkout-btn-sbp"><i class="fas fa-qrcode"></i> Оплатить СБП</button>
@@ -342,13 +316,32 @@ class CartManager {
         radios.forEach(r => {
             r.addEventListener('change', () => {
                 addressBlock.style.display = r.value === 'delivery' ? 'block' : 'none';
-                if (r.value !== 'delivery') addressInput.removeAttribute('required');
-                else addressInput.setAttribute('required', 'required');
+                if (r.value !== 'delivery') {
+                    addressInput.removeAttribute('required');
+                    addressInput.value = '';
+                } else {
+                    addressInput.setAttribute('required', 'required');
+                }
             });
         });
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            // Validate delivery address if needed
+            const selectedDelivery = form.querySelector('input[name="deliveryType"]:checked').value;
+            if (selectedDelivery === 'delivery' && !addressInput.value.trim()) {
+                showToast('Пожалуйста, укажите адрес доставки.', 'error');
+                return;
+            }
+            
+            // Validate phone
+            const phone = document.getElementById('checkoutPhone').value.trim();
+            if (!phone || phone.length < 11) {
+                showToast('Пожалуйста, укажите корректный номер телефона.', 'error');
+                return;
+            }
+            
             this.checkout();
         });
         cancelBtn.addEventListener('click', () => this.hideCheckoutForm());
@@ -371,34 +364,48 @@ class CartManager {
         wrap.style.display = 'block';
         btn.style.display = 'none';
 
-        // Load bonus points
+        // Load bonus points and calculate discount
         try {
             if (window.API && window.API.bonus) {
                 const bonusRes = await window.API.bonus.getHistory();
                 const balance = bonusRes.balance || 0;
                 const bonusBlock = document.getElementById('bonusBlock');
                 const bonusAvail = document.getElementById('bonusAvailable');
-                if (balance > 0 && bonusBlock) {
-                    bonusBlock.style.display = 'block';
-                    bonusAvail.textContent = balance;
-                    const checkbox = document.getElementById('useBonusPoints');
-                    const discountInfo = document.getElementById('bonusDiscount');
-                    checkbox.checked = false;
-                    checkbox.addEventListener('change', () => {
-                        if (checkbox.checked) {
-                            const total = this.getTotalPrice();
-                            const maxDiscount = Math.floor(total * 0.5);
-                            const discount = Math.min(balance, maxDiscount);
-                            discountInfo.style.display = 'block';
-                            discountInfo.textContent = `Скидка: -${discount} ₽ (итого: ${total - discount} ₽)`;
-                        } else {
-                            discountInfo.style.display = 'none';
-                        }
-                    });
+                
+                if (bonusBlock) {
+                    if (balance > 0) {
+                        bonusBlock.style.display = 'block';
+                        bonusAvail.textContent = balance;
+                        
+                        const checkbox = document.getElementById('useBonusPoints');
+                        const discountInfo = document.getElementById('bonusDiscount');
+                        
+                        // Remove old event listeners and add new one
+                        checkbox.checked = false;
+                        discountInfo.style.display = 'none';
+                        
+                        checkbox.removeEventListener('change', checkbox._changeHandler);
+                        checkbox._changeHandler = (e) => {
+                            if (e.target.checked) {
+                                const subtotal = this.getTotalPrice();
+                                const maxDiscount = Math.floor(subtotal * 0.5);
+                                const discount = Math.min(balance, maxDiscount);
+                                discountInfo.style.display = 'block';
+                                discountInfo.textContent = `Скидка: -${discount} ₽ | Итого: ${(subtotal - discount).toFixed(2)} ₽`;
+                            } else {
+                                discountInfo.style.display = 'none';
+                            }
+                        };
+                        checkbox.addEventListener('change', checkbox._changeHandler);
+                    } else {
+                        bonusBlock.style.display = 'none';
+                    }
                 }
             }
         } catch (e) {
             console.warn('Could not load bonus points:', e);
+            const bonusBlock = document.getElementById('bonusBlock');
+            if (bonusBlock) bonusBlock.style.display = 'none';
         }
     }
 
@@ -498,7 +505,6 @@ class CartManager {
         }
     }
 
-    // Checkout
     async checkout() {
         if (this.cart.length === 0) {
             showToast('Корзина пуста', 'warning');
@@ -507,128 +513,122 @@ class CartManager {
 
         const currentUser = this.getCurrentUser();
         if (!currentUser) {
-            showToast('Пожалуйста, войдите в аккаунт', 'warning');
+            showToast('Пожалуйста, войдите в аккаунт.', 'warning');
             window.location.href = 'login.html';
             return;
         }
 
-        // Ensure cart is synced with API before checkout
-        if (window.API) {
-            try {
-                // Save current cart state before loading from API
-                const currentCartItems = [...this.cart];
-                
-                // Reload cart from API to ensure it's up to date
-                await this.loadCart();
-                
-                // If cart is empty in DB but we have items locally, sync them first
-                if (this.cart.length === 0 && currentCartItems.length > 0) {
-                    console.log('Cart is empty in DB, syncing local items...');
-                    for (const item of currentCartItems) {
-                        try {
-                            // Normalize item data before syncing
-                            const normalizedItem = {
-                                itemId: item.itemId || item.id,
-                                name: item.name,
-                                price: item.price,
-                                size: item.size,
-                                image: item.image,
-                                quantity: item.quantity || 1
-                            };
-                            await window.API.cart.addItem(normalizedItem);
-                        } catch (err) {
-                            console.error('Error syncing item:', err);
-                        }
-                    }
-                    // Reload cart after sync
-                    await this.loadCart();
-                }
-                
-                // Final check - use whichever cart has items
-                if (this.cart.length === 0 && currentCartItems.length > 0) {
-                    // If still empty after sync, use local cart
-                    this.cart = currentCartItems;
-                }
-                
-                if (this.cart.length === 0) {
-                    showToast('Корзина пуста. Добавьте товары в корзину.', 'warning');
-                    return;
-                }
+        // Get checkout form values
+        const checkoutForm = document.getElementById('checkoutForm');
+        if (!checkoutForm) {
+            showToast('Форма оформления не найдена. Попробуйте ещё раз.', 'error');
+            return;
+        }
 
-                // Check if there's a generated recipe in the cart (for "Ваш нейро-кофе" item)
-                let recipe = null;
-                const neuroCoffeeItem = this.cart.find(item => 
-                    item.itemId === 7 || item.name?.toLowerCase().includes('нейро-кофе') || item.name?.toLowerCase().includes('ваш нейро')
-                );
-                
-                // If we have a generated recipe stored globally or in localStorage, use it
-                if (!window.generatedRecipe) {
-                    const savedRecipe = localStorage.getItem('neuro-cafe-generated-recipe');
-                    if (savedRecipe) {
-                        try {
-                            window.generatedRecipe = JSON.parse(savedRecipe);
-                        } catch (e) {
-                            console.error('Error loading saved recipe:', e);
-                        }
-                    }
+        const deliveryRadio = checkoutForm.querySelector('input[name="deliveryType"]:checked');
+        const phoneInput = document.getElementById('checkoutPhone');
+        const notesInput = document.getElementById('checkoutNotes');
+        const addressInput = document.getElementById('checkoutAddress');
+        const bonusCheckbox = document.getElementById('useBonusPoints');
+
+        const deliveryType = deliveryRadio ? deliveryRadio.value : 'self_pickup';
+        const phone = (phoneInput && phoneInput.value ? phoneInput.value.trim() : '') || currentUser.phone || 'Не указан';
+        const address = deliveryType === 'delivery' ? (addressInput && addressInput.value ? addressInput.value.trim() : '') : 'Самовывоз';
+        const notes = (notesInput && notesInput.value ? notesInput.value.trim() : '') || '';
+
+        // Validate delivery address if delivery type is selected
+        if (deliveryType === 'delivery' && !address) {
+            showToast('Пожалуйста, укажите адрес доставки.', 'error');
+            return;
+        }
+
+        // Validate phone
+        if (!phone || phone === 'Не указан') {
+            showToast('Пожалуйста, укажите номер телефона.', 'error');
+            return;
+        }
+
+        const orderData = {
+            deliveryType: deliveryType,
+            deliveryAddress: address,
+            phone: phone,
+            notes: notes || null,
+            recipe: null,
+            useBonusPoints: bonusCheckbox ? bonusCheckbox.checked : false
+        };
+
+        // Check if there's a generated recipe for AI coffee
+        let recipe = null;
+        const neuroCoffeeItem = this.cart.find(item => 
+            item.itemId === 5 || item.itemId === 7 || item.name?.toLowerCase().includes('нейро-кофе') || item.name?.toLowerCase().includes('ваш нейро')
+        );
+        
+        if (!window.generatedRecipe) {
+            const savedRecipe = localStorage.getItem('neuro-cafe-generated-recipe');
+            if (savedRecipe) {
+                try {
+                    window.generatedRecipe = JSON.parse(savedRecipe);
+                } catch (e) {
+                    console.error('Error loading saved recipe:', e);
                 }
-                
-                if (window.generatedRecipe && neuroCoffeeItem) {
-                    recipe = window.generatedRecipe;
-                }
-
-                // Get checkout form values
-                const checkoutForm = document.getElementById('checkoutForm');
-                const deliveryRadio = checkoutForm ? checkoutForm.querySelector('input[name="deliveryType"]:checked') : null;
-                const phoneInput = document.getElementById('checkoutPhone');
-                const notesInput = document.getElementById('checkoutNotes');
-                const addressInput = document.getElementById('checkoutAddress');
-                const bonusCheckbox = document.getElementById('useBonusPoints');
-
-                const orderData = {
-                    deliveryType: deliveryRadio ? deliveryRadio.value : 'self_pickup',
-                    deliveryAddress: addressInput ? addressInput.value : null,
-                    phone: (phoneInput ? phoneInput.value : '') || currentUser.phone || 'Не указан',
-                    notes: (notesInput ? notesInput.value : '') || 'Нет',
-                    recipe: recipe ? JSON.stringify(recipe) : null,
-                    useBonusPoints: bonusCheckbox ? bonusCheckbox.checked : false
-                };
-
-                const response = await window.API.orders.createOrder(orderData);
-                if (!response.success) throw new Error(response.message || 'Не удалось создать заказ');
-
-                const orderId = response.order.id || response.order._id;
-                const payRes = await window.API.payments.createSbp(orderId);
-                if (!payRes.success || !payRes.paymentUrl) {
-                    throw new Error(payRes.message || 'Не удалось создать платёж СБП.');
-                }
-
-                if (recipe) {
-                    window.generatedRecipe = null;
-                    localStorage.removeItem('neuro-cafe-generated-recipe');
-                }
-                this.toggleCart();
-                window.location.href = payRes.paymentUrl;
-            } catch (error) {
-                console.error('Error creating order:', error);
-                showToast(error.message || 'Ошибка при оформлении заказа. Попробуйте еще раз.', 'error');
-                if (error.response) console.error('API Error Response:', error.response);
             }
-        } else {
-            const order = {
-                id: Date.now(),
-                userId: currentUser.id,
-                items: [...this.cart],
-                total: this.getTotalPrice(),
-                date: new Date().toISOString(),
-                status: 'pending'
-            };
-            const orders = JSON.parse(localStorage.getItem('neuro-cafe-orders') || '[]');
-            orders.push(order);
-            localStorage.setItem('neuro-cafe-orders', JSON.stringify(orders));
-            this.clearCart();
-            showToast(`Заказ оформлен! Номер заказа: #${order.id} — Сумма: ${order.total} ₽`, 'success');
+        }
+        
+        if (window.generatedRecipe && neuroCoffeeItem) {
+            recipe = window.generatedRecipe;
+            orderData.recipe = JSON.stringify(recipe);
+        }
+
+        // Disable button during submission
+        const btn = checkoutForm.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        const originalText = btn.textContent;
+        btn.textContent = 'Обработка...';
+
+        try {
+            if (!window.API || !window.API.orders) {
+                throw new Error('Сервис недоступен. Попробуйте обновить страницу.');
+            }
+
+            // Create order
+            const orderResponse = await window.API.orders.createOrder(orderData);
+            if (!orderResponse.success) {
+                throw new Error(orderResponse.message || 'Не удалось создать заказ');
+            }
+
+            const orderId = orderResponse.order.id || orderResponse.order._id;
+            if (!orderId) {
+                throw new Error('Не удалось получить ID заказа');
+            }
+
+            // Create payment
+            if (!window.API.payments) {
+                throw new Error('Сервис платежей недоступен');
+            }
+
+            const paymentResponse = await window.API.payments.createSbp(orderId);
+            if (!paymentResponse.success || !paymentResponse.paymentUrl) {
+                throw new Error(paymentResponse.message || 'Не удалось создать платеж СБП. Попробуйте позже.');
+            }
+
+            // Clear recipe after successful order
+            if (recipe) {
+                window.generatedRecipe = null;
+                localStorage.removeItem('neuro-cafe-generated-recipe');
+            }
+
+            this.hideCheckoutForm();
             this.toggleCart();
+            
+            // Redirect to payment
+            window.location.href = paymentResponse.paymentUrl;
+        } catch (error) {
+            console.error('Checkout error:', error);
+            const errorMsg = error.message || 'Ошибка при оформлении заказа. Попробуйте ещё раз.';
+            showToast(errorMsg, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
         }
     }
 
